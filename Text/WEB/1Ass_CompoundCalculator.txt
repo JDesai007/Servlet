@@ -1,0 +1,311 @@
+// index.jsp
+
+<%-- 
+    Document   : index
+    Created on : 14-Feb-2024, 2:51:18 pm
+    Author     : user
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            width: 300px;
+        }
+        td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+      label {
+            font-weight: bold;-->
+            
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: blue;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+    </head>
+    <body>
+        <center>
+    <form action="calculator" onsubmit="return validateForm()">
+        <table>
+            <tr colspan="2">
+                <th align="center" colspan="2">Count Compound Interest</th>
+            </tr>
+
+            <tr>
+                <td>
+                     <label>principal amount: <span>₹</span></label>
+                     <input type="text" name="amout" id="amount"/>
+                     <br>
+                </td>
+            </tr>    
+        
+            <tr>
+                <td>
+                    <label>Interest Rate: <span>%</span></label>
+                    <input type="text" name="rate" id="rate"/>
+                    <br>
+                </td>
+            </tr>
+
+            
+             <tr>
+                <td>
+                 <label>years:</label>
+                 <input type="text" name="year" id="year"/>
+                 <br>
+                </td>
+            </tr>
+            
+             <tr>
+                <td>
+                 <label>Months:</label>
+                 <input type="text" name="month" id="month"/>
+                 <br>
+                </td>
+            </tr>
+            
+             <tr>
+                <td>
+                 <label>compound interest:</label>
+                 <select name="ci" id="ci" required>
+                        <option value="Daily(365/yar)">Daily(365/yar)</option>
+                        <option value="Daily(360/yar)">Daily(360/yar)</option>
+                        <option value="Weekly(52/yr)">Weekly(52/yr)</option>
+                        <option value="Weekly(26/yr)">Weekly(26/yr)</option>
+                        <option value="Half Monthly(24/yr)">Half Monthly(24/yr)</option>
+                        <option value="Monthly(12/yr)">Monthly(12/month)</option>
+                        <option value="Monthly(6/yr)">Monthly(6/month)</option>
+                        <option value="Quarterly">Quarterly(4/month)</option>
+                        <option value="Half Yearly(2/yr)">Half Yearly(2/month)</option>
+                        <option value="Yearly(1/yr)">Yearly(1/month)</option>
+                        
+                    </select>
+                 <!-- comment <input type="text" name="interast" id="interast"/>-->
+                 <br>
+                </td>
+            </tr>
+        
+            <tr>
+                <td>
+                 <button type="submit" name="submit">submit</button>
+                </td>
+            </tr>    
+        </table>
+    </form>
+            <script>
+        function validateForm() {
+            var amount = document.getElementById("amount").value;
+            var rate = document.getElementById("rate").value;
+            var year = document.getElementById("year").value;
+            var month = document.getElementById("month").value;
+            var interest = document.getElementById("ci").value;
+
+            if (amount === "" || isNaN(amount) || parseFloat(amount) <= 0) {
+                alert("Please enter a valid positive principal amount");
+                return false;
+            }
+            if (rate === ""  || parseFloat(rate) <= 0) {
+                alert("Please enter a valid interest rate greater than zero");
+                return false;
+            }
+            if (year === "" || isNaN(year) || year < 0) {
+                alert("Please enter a valid number of years");
+                return false;
+            }
+            if (month === "" || isNaN(month) || parseInt(month) < 0 || parseInt(month) > 11) {
+                alert("Please enter a number of months between 0 and 1");
+                return false;
+            }
+            if (interest === "" ) {
+                alert("Please enter a valid compound interest");
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+        </center>
+    
+    </body>
+</html>
+
+
+
+//calculator.java
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import static javax.swing.text.html.HTML.Tag.P;
+/**
+ *
+ * @author user
+ */
+public class calculator extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+           double principalAmout = Double.parseDouble(request.getParameter("amout")) ;
+           double rate= Double.parseDouble(request.getParameter("rate"));
+           int year= Integer.parseInt( request.getParameter("year")); 
+           int month= Integer.parseInt( request.getParameter("month"));
+           String ci =(request.getParameter("ci"));
+           double s=0.0;
+          
+            switch(ci)
+           {
+               case "Daily(365/yar)":
+                    s=365;
+                    break;
+                   
+               case "Daily(360/yar)": 
+                    s=360;
+                    break;
+                    
+               case "Weekly(52/yr)":
+                     s=52;
+                     break;
+                     
+               case "Weekly(26/yr)":
+                     s=26;
+                     break;
+                   
+               case "Half Monthly(24/yr)":
+                     s=24;
+                     break;
+                   
+               case "Monthly(12/yr)":
+                     s=12;
+                     break;
+                   
+               case "Monthly(6/yr)":
+                     s=6;
+                     break;
+                     
+               case "Quarterly":
+                     s=4;
+                     break;  
+                   
+               case "Half Yearly(2/yr)":
+                     s=2;
+                     break;
+               case "Yearly(1/yr)": 
+                     s=1;
+                     break;
+           }
+           
+           
+          // double timeyear = year + s+(double) month / 12.0; 
+           // double timeyear = year + s+(s/12.0)*month; 
+           //double n = 12.0 / s;
+           //double interest = principalAmout * Math.pow(1 + (rate / (s * 100)),  timeyear);
+
+            double totalMonths=(double)year+(double)month/12;
+            double n=s/totalMonths;
+            double interest=principalAmout*Math.pow(1+(rate/(100*n)), n*totalMonths);
+
+           /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet calculator</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet calculator</h1>");
+            out.println("<h3>Compund Interest is :" + interest + "</h3>");
+            out.println("<p>Amount: " + principalAmout + "</p>");
+            out.println("<p>Rate: " + rate + "%</p>");
+            out.println("<p>Years: " + year + "</p>");
+            out.println("<p>Months: " + month + "</p>");
+            out.println("<p>Compound Interval: " + ci + "</p>");
+            out.println("<p>Compound Interest: ₹" + interest + "</p>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+        
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}

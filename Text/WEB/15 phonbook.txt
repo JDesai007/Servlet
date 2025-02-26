@@ -1,0 +1,63 @@
+//phonebook.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<phonebook xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="phonebook.xsd">
+    <department>
+        <deptname>Marketing</deptname>
+        <deptphone>7982773149</deptphone>
+        <employee>
+            <empid>1</empid>
+            <empname>Vishal</empname>
+            <empphone>8200293222</empphone>
+            <empemail>vishu12@gmail.com</empemail>
+        </employee>
+        <employee>
+            <empid>2</empid>
+            <empname>Nitin</empname>
+            <empphone>9924774582</empphone>
+            <empemail>nitins@gmail.com</empemail>
+        </employee>
+    </department>
+    <department>
+        <deptname>Finance</deptname>
+        <deptphone>7359818160</deptphone>
+        <employee>
+            <empid>3</empid>
+            <empname>Yasvi</empname>
+            <empphone>9328137530</empphone>
+            <empemail>jyashvi@gmail.com</empemail>
+        </employee>
+    </department>
+</phonebook>
+
+
+
+//phonebook.xsd
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="phonebook">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="department" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="deptname" type="xs:string"/>
+              <xs:element name="deptphone" type="xs:string"/>
+              <xs:element name="employee" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="empid" type="xs:string"/>
+                    <xs:element name="empname" type="xs:string"/>
+                    <xs:element name="empphone" type="xs:string"/>
+                    <xs:element name="empemail" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

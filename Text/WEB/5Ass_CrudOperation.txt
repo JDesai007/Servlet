@@ -1,0 +1,678 @@
+//index.jsp
+
+<%-- 
+    Document   : index
+    Created on : Mar 22, 2024, 8:37:12 AM
+    Author     : user
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>JSP Page</title>
+    <script>
+        var empnoRegex = /^[0-9]+$/;
+        var enameRegex = /^[a-zA-Z]+$/;
+        var contactnoRegex= /^[0-9]{10}$/;
+        function validate() {
+            if (empnoRegex.test(document.getElementById("empno").value) == false) {
+                alert("Enter only numeric in Employee Number");
+                return false;
+            }
+            if (enameRegex.test(document.getElementById("ename").value) == false) {
+                alert("Enter only alphabet in Employee Name");
+                return false;
+            }
+            if (dob === "" || jod === "") {
+                alert("Please select both Date of Birth and Date of Joining");
+                return false;
+            }
+            if (contactnoRegex.test(document.getElementById("contactno").value)== false) {
+                alert("Contact Number must be exactly 10 digits");
+                return false;
+            }
+        }
+    </script>
+</head>
+
+<body>
+<div class="main">
+    <form onsubmit="return validate()" action="insert_data" method="post">
+        <table align="center" border="20">
+            <tr>
+                <td><label>Employee Number</label></td>
+                <td><input type="text" name="empno" id="empno" placeholder="Employee Number"></td>
+            </tr>
+
+            <tr>
+                <td><label>Employee Name</label></td>
+                <td><input type="text" name="ename" id="ename" placeholder="Employee Name"></td>
+            </tr>
+
+            <tr>
+                <td><label>Date of Birth</label></td>
+                <td><input type="date" name="dob" id="dob"></td>
+            </tr>
+
+            <tr>
+                <td><label>Date of Joining</label></td>
+                <td><input type="date" name="jod" id="jod"></td>
+            </tr>
+
+            <tr>
+                <td><label>Contact Number</label></td>
+                <td><input type="text" name="contactno" id="contactno" placeholder="Contact Number"></td>
+            </tr>
+
+            <tr>
+                <td colspan="2" align="center"><button type="submit" name="insert" value="insert">Insert</button></td>
+            </tr>
+
+        </table>
+    </form>
+</div>
+</body>
+</html>
+
+
+//update.jsp
+
+<%-- 
+    Document   : update
+    Created on : Mar 22, 2024, 9:36:14 AM
+    Author     : user
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>JSP Page</title>
+    <script>
+        var empnoRegex = /^[0-9]+$/;
+        var enameRegex = /^[a-zA-Z]+$/;
+
+        function validate() {
+            if (empnoRegex.test(document.getElementById("empno").value) == false) {
+                alert("Enter only numeric in Employee Number");
+                return false;
+            }
+            if (enameRegex.test(document.getElementById("ename").value) == false) {
+                alert("Enter only alphabet in Employee Name");
+                return false;
+            }
+            if (dob === "" || jod === "") {
+                alert("Please select both Date of Birth and Date of Joining");
+                return false;
+            }
+            if (contactnoRegex.test(contactno) == false) {
+                alert("Contact Number must be exactly 10 digits");
+                return false;
+            }
+        }
+    </script>
+</head>
+
+<body>
+<%
+String empno = request.getParameter("empno");
+String ename = request.getParameter("ename");
+String dob = request.getParameter("dob");
+String jod = request.getParameter("jod");
+String contactno = request.getParameter("contactno");
+if (empno == null && ename == null && dob == null && jod == null && contactno == null) {
+    empno = "";
+    ename = "";
+    dob = "";
+    jod = "";
+    contactno = "";
+}
+%>
+<div class="main">
+    <form onsubmit="return validate()" action="update_data" method="post">
+        <table align="center">
+            <tr>
+                <td><label>Employee Number</label></td>
+                <td><input type="text" name="empno" id="empno" placeholder="Employee Number" value="<%=empno%>"></td>
+            </tr>
+
+            <tr>
+                <td><label>Employee Name</label></td>
+                <td><input type="text" name="ename" id="ename" placeholder="Employee Name" value="<%=ename%>"></td>
+            </tr>
+
+            <tr>
+                <td><label>Date of Birth</label></td>
+                <td><input type="date" name="dob" id="dob" value="<%=dob%>"></td>
+            </tr>
+
+            <tr>
+                <td><label>Date of Joining</label></td>
+                <td><input type="date" name="jod" id="jod" value="<%=jod%>"></td>
+            </tr>
+
+            <tr>
+                <td><label>Contact Number</label></td>
+                <td><input type="text" name="contactno" id="contactno" placeholder="Contact Number" value="<%=contactno%>"></td>
+            </tr>
+
+            <tr>
+                <td colspan="2"><button type="submit" name="update" value="update">Update</button></td>
+            </tr>
+
+        </table>
+    </form>
+</div>
+</body>
+</html>
+
+
+//update_data.java
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author user
+ */
+public class update_data extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+   protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            Connection con;
+            PreparedStatement ps;
+            ResultSet rs;
+            String empno = request.getParameter("empno");
+            String ename = request.getParameter("ename");
+            String dob = request.getParameter("dob");
+            String jod = request.getParameter("jod");
+            String contactno = request.getParameter("contactno");
+            
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/java_db", "root", "");
+            
+            ps = con.prepareStatement("UPDATE emp SET ename=?, dob=?, jod=?, contactno=? WHERE empno=?");
+            ps.setString(1, ename);
+            ps.setString(2, dob);
+            ps.setString(3, jod);
+            ps.setString(4, contactno);
+            ps.setString(5, empno);
+            ps.executeUpdate();
+            
+            response.sendRedirect("viewdata?done=true");
+                    
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet update_data</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet update_data at " + empno + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(update_data.class.getName()).log(Level.SEVERE, null, ex);
+        }   
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}
+
+
+//insert_data
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author user
+ */
+public class insert_data extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            Connection con;
+            PreparedStatement ps;
+            ResultSet rs;
+            Statement st;
+            // Get parameters from request
+            String empno = request.getParameter("empno");
+            String ename = request.getParameter("ename");
+            String dob = request.getParameter("dob");
+            String jod = request.getParameter("jod");
+            String contactno = request.getParameter("contactno");
+            
+            // Establish database connection
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/java_db", "root", "");
+            
+            // Check if empno already exists
+            ps = con.prepareStatement("SELECT * FROM emp WHERE empno = ?");
+            ps.setString(1, empno);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                // If empno already exists, show alert and redirect back to index.jsp
+                out.println("<script>");
+                out.println("alert('Employee Number already exists. Please use a different one.');");
+                out.println("window.location='index.jsp';");
+                out.println("</script>");
+            } else {
+                // Insert data into emp table
+                ps = con.prepareStatement("INSERT INTO emp (empno, ename, dob, jod, contactno) VALUES (?, ?, ?, ?, ?)");
+                ps.setString(1, empno);
+                ps.setString(2, ename);
+                ps.setString(3, dob);
+                ps.setString(4, jod);
+                ps.setString(5, contactno);
+                ps.executeUpdate();
+                // Redirect to viewdata servlet to display updated data
+                response.sendRedirect("viewdata");
+            }
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(insert_data.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(insert_data.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}
+
+
+//delete_data.java
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author user
+ */
+public class delete_data extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            Connection con;
+            PreparedStatement ps;
+            ResultSet rs;
+            int empno = Integer.parseInt(request.getParameter("empno"));
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/java_db", "root", "");
+            ps = con.prepareStatement("DELETE FROM emp WHERE empno=?");
+            ps.setInt(1, empno);  
+            ps.executeUpdate();
+            response.sendRedirect("viewdata");
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet delete_data</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet delete_data at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(delete_data.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(delete_data.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}
+
+
+//viewdata.java
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author user
+ */
+public class viewdata extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            // Establish database connection
+            Connection con;
+            PreparedStatement ps;
+            ResultSet rs;
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/java_db", "root", "");
+            
+            // Fetch data from the emp table
+            ps = con.prepareStatement("SELECT * FROM emp");
+            rs = ps.executeQuery();
+            
+            // Begin HTML output
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Employee Data</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<center>");
+            out.println("<div class='main'>");
+            out.println("<table border='1' cellpadding='10'>");
+            out.println("<tr>");
+            out.println("<th>ID</th>");
+            out.println("<th>Name</th>");
+            out.println("<th>Date of Birth</th>");
+            out.println("<th>Date of Joining</th>");
+            out.println("<th>Contact Number</th>");
+            out.println("<th>Action</th>");
+            out.println("</tr>");
+            
+            // Display fetched data in HTML table
+            while (rs.next()) {
+                out.println("<tr>");
+                out.println("<td>" + rs.getInt("empno") + "</td>");
+                out.println("<td>" + rs.getString("ename") + "</td>");
+                out.println("<td>" + rs.getString("dob") + "</td>");
+                out.println("<td>" + rs.getString("jod") + "</td>");
+                out.println("<td>" + rs.getString("contactno") + "</td>");
+                out.println("<td>");
+                out.println("<a href='update.jsp?empno=" + rs.getInt("empno") + "'>Edit</a>");
+                out.println(" | ");
+                out.println("<a href='delete_data?empno=" + rs.getInt("empno") + "'>Delete</a>");
+                out.println("</td>");
+                out.println("</tr>");
+            }
+            
+            // End HTML output
+            out.println("</table>");
+            out.println("</div>");
+            out.println("</center>");
+            out.println("</body>");
+            out.println("</html>");
+            
+        } catch (ClassNotFoundException | SQLException ex) {
+            System.out.println("Exception: " + ex.getMessage());
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}
+
+---------------
+//query for database
+CREATE TABLE emp (
+    empno VARCHAR(10) PRIMARY KEY,
+    ename VARCHAR(100),
+    dob DATE,
+    jod DATE,
+    contactno VARCHAR(15)
+);
+

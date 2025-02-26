@@ -1,0 +1,15 @@
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="3.0">
+    <display-name>Servlet Information</display-name>
+    <servlet>
+        <servlet-name>InfoServlet</servlet-name>
+        <servlet-class>com.myapp.InfoServlet</servlet-class>
+        <init-param>
+            <param-name>exampleParam</param-name>
+            <param-value>Example Value</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>InfoServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+</web-app>

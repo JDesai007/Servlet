@@ -1,0 +1,51 @@
+// index.jsp
+
+<%-- 
+    Document   : index
+    Created on : 15-Feb-2024, 12:29:41 am
+    Author     : user
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+    </head>
+    <body>
+        <h1>Hello World!</h1>
+    </body>
+</html>
+
+
+//web.xml
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.5" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+<context-param>
+<param-name>password</param-name>
+<param-value>satya167</param-value>
+</context-param>
+<servlet>
+<servlet-name>InfoServ</servlet-name>
+<servlet-class>InfoServ</servlet-class>
+<init-param>
+<param-name>id</param-name>
+<param-value>Satyajit167</param-value>
+</init-param>
+<init-param>
+<param-name>username</param-name>
+<param-value>satya@admin</param-value>
+</init-param>
+</servlet>
+<servlet-mapping>
+<servlet-name>InfoServ</servlet-name>
+<url-pattern>/InfoServ</url-pattern>
+</servlet-mapping>
+<session-config>
+<session-timeout> 30 </session-timeout>
+</session-config>
+<welcome-file-list>
+<welcome-file>index.jsp</welcome-file>
+</welcome-file-list>
+</web-app>

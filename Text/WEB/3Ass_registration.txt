@@ -1,0 +1,306 @@
+index.jsp
+
+<%-- 
+    Document   : index
+    Created on : 16-Feb-2024, 8:33:23 am
+    Author     : user
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Registration Page</title>
+        <style>
+            body {
+            
+            background-color: #f4f4f4   ;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+        form {
+            text-align: center;
+            width: 30%;
+            margin: 0 auto;
+            background-color:bisque;
+            padding: 20px;
+            border: 2px solid red;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid red;
+            border-radius: 50px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            width: 70%;
+            background-color: red;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+           
+        }
+        input[type="submit"]:hover {
+            color: red;
+            background-color:#fff;
+            border: 2px solid red;
+            border-radius: 50px;
+        }
+        </style>
+        <script>
+            function validateForm()
+            {
+            var firstName = document.getElementById("fname").value;
+            var lastName = document.getElementById("lname").value;
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("cpassword").value;
+            var email = document.getElementById("email").value;
+            var mobileNumber = document.getElementById("mnumber").value;
+            var address = document.getElementById("address").value;
+            var role = document.getElementById("role").value;
+            
+            
+            var nameRegex = /^[a-zA-Z]{6,}$/;
+            var passwordRegex = /^.{6,}$/;
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            var mobileRegex = /^\d{10}$/;
+            
+            if (!nameRegex.test(firstName)) {
+                alert("First name should contain alphabets and the length should not be less than 6 characters.");
+                return false;
+            }
+            if (!nameRegex.test(lastName)) {
+                alert("Last name should contain alphabets and the length should not be less than 6 characters.");
+                return false;
+            }
+            if (!passwordRegex.test(password)) {
+                alert("Password should not be less than 6 characters length.");
+                return false;
+            }
+   
+            if (password !== confirmPassword) {
+                alert("Passwords do not match.");
+                return false;
+            }
+            if (!emailRegex.test(email)) {
+                alert("Invalid email format.");
+                return false;
+            }
+            if (!mobileRegex.test(mobileNumber)) {
+                alert("Mobile number should contain 10 digits only.");
+                return false;
+            }
+            if (address.trim() === "") {
+                alert("Address cannot be empty.");
+                return false;
+            }
+            if (role === "") {
+                alert("Please select a user role.");
+                return false;
+            }
+            return true;
+            }
+            
+            
+        </script>
+    </head>
+    <body>
+        <h1>Registration Form</h1>
+        <form action="RegistrationPage" method="post" onsubmit="return validateForm()">
+            First Name<input type="text" name="fname" id="fname"> </br></br>
+            Last Name<input type="text" name="lname" id="lname"> </br></br>
+            Password<input type="password" name="password" id="password"></br></br>
+            Confirm Password<input type="password" name="cpassword" id="cpassword"> </br></br>
+            Email<input type="email" name="email" id="email"></br></br>
+            Mobile Number<input type="text" name="mnumber" id="mnumber"> </br></br>
+            Address<textarea id="address" name="address"></textarea></br></br>
+            User Role<select id="role" name="role">
+                <option value="">Select</option>
+                <option value="admin">Admin</option>
+                <option value="registerd user">Registered User</option>
+                <option value="guest">Guest</option>
+             </select> </br></br>
+             <input type="submit" value="Register">
+        </form>
+    </body>
+</html>
+
+
+RegistrationPage .java
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.sql.*;
+
+/**
+ *
+ * @author user
+ */
+public class RegistrationPage extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        String firstName = request.getParameter("fname");
+        String lastName = request.getParameter("lname");
+        String password = request.getParameter("password");
+        String email = request.getParameter("email");
+        String mobileNumber = request.getParameter("mnumber");
+        String address = request.getParameter("address");
+        String role = request.getParameter("role");
+        PrintWriter out = response.getWriter();
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try{
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ashok_12", "root", "");
+            
+            ps = con.prepareStatement("SELECT COUNT(*) AS count FROM registration WHERE Email = ?");
+            ps.setString(1, email);
+            rs = ps.executeQuery();
+            if(rs.next() && rs.getInt("count") > 0)
+            {
+                out.println("<center><h2>Email already exists. Please use a different email.</h2></center>");
+            }
+            else
+            {
+            ps = con.prepareStatement("INSERT INTO registration (FirstName,LastName,Password,Email,MobileNumber,Address, UserRoll) VALUES (?,?,?,?,?,?,?)");
+            ps.setString(1, firstName);
+            ps.setString(2, lastName);
+            ps.setString(3, password);
+            ps.setString(4, email);
+            ps.setString(5, mobileNumber);
+            ps.setString(6, address);
+            ps.setString(7, role);
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) 
+            {
+                out.println("<center><h2>Registration successful</h2><center>");
+            }
+            else 
+            {
+                out.println("<h2>Registration failed</h2>");
+            }
+            }
+            
+            con.close();
+
+        }
+        catch(SQLException e)
+        {
+            out.println("<center><h2>Error occurred: " + e.getMessage() + "</h2></center>");
+        }
+        catch (ClassNotFoundException e) 
+        {
+            out.println("<h2>Error occurred: " + e.getMessage() + "</h2>");
+        }
+        finally
+        {
+             try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+                if (con != null) con.close();
+            } catch (SQLException ex) {
+                out.println("<h2>Error occurred while closing connection: " + ex.getMessage() + "</h2>");
+            }
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}
+
+//web.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    <servlet>
+        <servlet-name>RegistrationPage</servlet-name>
+        <servlet-class>RegistrationPage</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RegistrationPage</servlet-name>
+        <url-pattern>/RegistrationPage</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+</web-app>

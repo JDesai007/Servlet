@@ -1,0 +1,380 @@
+//web.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    <servlet>
+        <servlet-name>userLogin</servlet-name>
+        <servlet-class>userLogin</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>userLogin</servlet-name>
+        <url-pattern>/userLogin</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+</web-app>
+
+//index.jsp
+<%-- 
+    Document   : index
+    Created on : 18-Feb-2024, 5:17:56 pm
+    Author     : user
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+        <style>
+        body { 
+            font-family: Arial, sans-serif;
+        }
+        form {
+            background-color: black;
+            width: 300px;
+            margin: 100px auto;
+            border: 2px solid;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color:white;
+            text-align: center;
+        }
+        label {
+            color: white;
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            background-color: blue;
+            color: white;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button[type="submit"]:hover {
+            background-color: #625fde;
+        }
+    </style>
+    </head>
+    <body>
+        <center>
+            <form action="userLogin" onsubmit="validateForm()">
+                  <tr>
+                      <td>
+                        <h1>Login Page</h1>
+                        <label>UserName</label>
+                        <input type="text" name="username" id="username"  />
+                           <br>
+                      <td>
+                 </tr>
+                 
+                 <tr>
+                     <td>
+                        <label>Password</label>
+                        <input type="password" name="pass" id="pass" required />
+                        <br>
+                     </td>
+                </tr>     
+                 
+                <tr>
+                    <td>
+                        <button type="submit" class="btn btn -primary" required>Login</button>
+                    </td>
+                 </tr>   
+              
+              </form>
+        </center>
+  <script>
+    // JavaScript code here
+    function validateForm() {
+        // Retrieving the values of username and password fields
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("pass").value;
+        
+        // Checking if username is empty
+        if (username == "") {
+            // Displaying an alert message if username is empty
+            alert("Please enter your username.");
+            // Returning false to prevent form submission
+            return false;
+        }
+        // Checking if password is empty
+        if (password == "") {
+            // Displaying an alert message if password is empty
+            alert("Please enter your password.");
+            // Returning false to prevent form submission
+            return false;
+        }
+        // If both fields are filled, returning true to allow form submission
+        return true;
+    }
+</script>
+
+
+    </body>
+</html>
+
+
+//Profile.jsp
+<%-- 
+    Document   : Profile
+    Created on : 18-Feb-2024, 5:44:15 pm
+    Author     : user
+--%>
+
+<%
+    String fname=request.getParameter("fname");
+    String email=request.getParameter("email");
+    String mobile=request.getParameter("mobile");
+    String address=request.getParameter("address");
+    String role=request.getParameter("role");
+%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+         <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        form {
+            background-color: black;
+            color:white;
+            width: 300px;
+            margin: 100px auto;
+            border: 5px solid black;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+     
+    </head>
+    <body>
+        <h1>Profile</h1>
+        <center>
+            <form>
+                <!--<table border="1">-->
+                <table>
+                    <tr>
+                        <td>
+                            <label>Name :</label>
+                        </td>
+                        <td>
+                            <label><% out.print(fname); %></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Email :</label>
+                        </td>
+                        <td>
+                            <label><% out.print(email); %></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Address :</label>
+                        </td>
+                        <td>
+                            <label><% out.print(address); %></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Mobile :</label>
+                        </td>
+                        <td>
+                            <label><% out.print(mobile); %></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Role :</label>
+                        </td>
+                        <td>
+                            <label><% out.print(role); %></label>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </center>
+    </body>
+</html>
+
+
+
+
+userLogin.java
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+
+import com.mysql.jdbc.PreparedStatement;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.DriverManager;
+//import java.sql.Statement;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author user
+ */
+public class userLogin extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet userLogin</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet userLogin at " + request.getContextPath() + "</h1>");
+            
+            String email=request.getParameter("username");
+            String password=request.getParameter("pass");
+            
+            try{
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection con =DriverManager.getConnection("jdbc:mysql://localhost:3306/ashok_12","root","");
+                PreparedStatement st=(PreparedStatement)con.prepareStatement("select * from registration where Email=? and Password=?"); 
+
+                st.setString(1, email);
+                st.setString(2, password);
+                ResultSet rs=st.executeQuery();
+ 
+                out.println("<h1>Servlet</h1>");
+                if(rs.next()){
+                    
+                    String fname=rs.getString("FirstName");
+                    String mobile=rs.getString("MobileNumber");
+                    String address=rs.getString("Address");
+                    String role=rs.getString("UserRoll");
+                    out.println("<h1>Servlet</h1>");
+                    response.sendRedirect("Profile.jsp?fname="+fname+"&mobile="+mobile+"&address="+address+"&role="+role+"&email="+email);
+                    
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            
+            out.println("</body>");
+            out.println("</html>");
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+} 

@@ -1,0 +1,42 @@
+//planner.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE planner [
+    <!ELEMENT planner (year+)>
+    <!ELEMENT year (date+)>
+    <!ATTLIST year value CDATA #REQUIRED>
+    <!ELEMENT date (node+)>
+    <!ATTLIST date month CDATA #REQUIRED
+                    day CDATA #REQUIRED>
+    <!ELEMENT node (#PCDATA)>
+]>
+<planner>
+    <year value="2024">
+        <date month="January" day="1">
+            <node>Event 1</node>
+        </date>
+        <date month="February" day="15">
+            <node>Event 2</node>
+            <node>Event 3</node>
+        </date>
+    </year>
+    <year value="2025"> 
+        <date month="March" day="10">
+            <node>Event 4</node>
+        </date>
+        <date month="April" day="20">
+            <node>Event 5</node>
+            <node>Event 6</node>
+        </date>
+    </year>
+</planner>
+
+//planner.dtd
+<!ELEMENT planner (year+)>
+<!ELEMENT year (date+)>
+<!ATTLIST year
+          value CDATA #REQUIRED>
+<!ELEMENT date (node+)>
+<!ATTLIST date
+          month CDATA #REQUIRED
+          day CDATA #REQUIRED>
+<!ELEMENT node (#PCDATA)>

@@ -1,0 +1,3281 @@
+//index.jsp
+
+<%-- 
+    Document   : index
+    Created on : 15-Mar-2024, 9:59:36 AM
+    Author     : 91942
+--%>
+
+<%@page import="java.sql.ResultSet, java.sql.PreparedStatement, java.sql.DriverManager, java.sql.Connection"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>CURD Operations</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f5f5f5;
+                color: #607d8b;
+                margin: 0;
+            }
+
+            .container {
+                display: flex;
+                align-items: stretch;
+            }
+
+            .content {
+                flex-grow: 1; 
+                padding: 20px;
+                text-align: left; 
+            }
+
+            .edit-link i,
+            .delete-link i {
+                color: #607d8b; 
+                transition: color 0.3s;
+            }
+
+            .edit-link:hover i,
+            .delete-link:hover i {
+                color: #41545e; 
+            }
+
+            .menu-bar {
+                background-color: #607d8b;
+                color: #fff;
+                flex: 0 0 200px;
+                padding: 20px;
+            }
+
+            .menu-bar h1 {
+                color: #fff; 
+            }
+
+            .menu-bar a {
+                color: #fff; 
+                display: block;
+                text-decoration: none;
+                padding: 10px;
+                margin-bottom: 10px;
+                transition: background-color 0.3s;
+            }
+
+            .menu-bar a:hover {
+                background-color: #455a64;
+            }
+
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th, td {
+                padding: 10px;
+                border-bottom: 1px solid #ccc;
+            }
+
+            th {
+                background-color: #f2f2f2;
+                color: #607d8b;
+            }
+
+            td {
+                background-color: #fff;
+            }
+
+            .menu-bar a i.fa-edit {
+                color: #607d8b !important;
+            }
+
+            .menu-bar a:hover i.fa-edit {
+                color: #228b22 !important;
+            }
+
+            .menu-bar a i.fa-trash-alt {
+                color: #607d8b !important;
+            }
+
+            .menu-bar a:hover i.fa-trash-alt {
+                color: #ee4b2b !important;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="menu-bar">
+            <h1>Menu</h1><br>
+            <il>
+                <h3>Book Manage</h3>
+                <ul> <a href="showBook.jsp">Show Book</a></ul>
+                <ul> <a href="addBook.jsp">Add Book</a></ul>
+                <ul> <a href="searchBook.jsp">Search Book</a></ul>
+            </il><br>
+            <il>
+                <h3>Catalogue Manage</h3>
+                <ul> <a href="showCatalogue.jsp">Show Catalogue</a></ul>
+                <ul> <a href="addCatalogue.jsp">Add Catalogue</a></ul>
+                <ul> <a href="searchCatalogue.jsp">Search Catalogue</a></ul>
+            </il>
+        </div>
+    </body>
+</html>
+
+
+//addBook.jsp
+
+<%-- 
+    Document   : addBook
+    Created on : 15-Mar-2024, 9:59:36 AM
+    Author     : 91942
+--%>
+
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.Connection"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.ArrayList"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Add Book</title>
+        <style>
+            body {
+                font-family: Calibri, sans-serif; 
+                background-color: #f2f2f2;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                display: flex;
+                align-items: stretch;
+            }
+
+            .menu-bar {
+                background-color: #607d8b;
+                color: #fff;
+                padding: 20px;
+                margin-right: 20px;
+            }
+
+            .menu-bar a {
+                display: block;
+                color: #fff;
+                text-decoration: none;
+                margin-bottom: 10px;
+            }
+
+            .menu-bar a:hover {
+                background-color: #455a64;
+            }
+
+            .content {
+                background-color: #fff;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                margin: auto;
+                padding: 30px;
+                max-width: 700px;
+                border-radius: 5px;
+            }
+
+            h1 {
+                color: #607d8b;
+            }
+
+            label {
+                font-size: 18px;
+                color: #607d8b;
+                display: block;
+                margin-top:5px;
+                margin-bottom: 5px;
+            }
+
+            input, textarea, select {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+
+            button {
+                width: 100%;
+                background-color: #607d8b;
+                color: white;
+                padding: 14px 20px;
+                margin-top: 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            button:hover {
+                background-color: #78909c;
+            }
+        </style>
+        <script>
+            function validateForm() {
+                var catalogueId = document.getElementById("catalogueId").value;
+                var authorName = document.getElementById("authorName").value.trim();
+                var isbn = document.getElementById("isbn").value.trim();
+                var publisher = document.getElementById("publisher").value.trim();
+                var title = document.getElementById("bookTitle").value.trim();
+                var price = document.getElementById("price").value.trim();
+                var quantity = document.getElementById("quantity").value.trim();
+                var editionYear = document.getElementById("editionYear").value.trim();
+
+                var alphabetRegex = /^[A-Za-z\s]+$/;
+                var alphanumericRegex = /^[0-9a-zA-Z]+$/;
+                var priceRegex = /^\d+(\.\d{1,2})?$/;
+                var quantityRegex = /^[1-9]\d*$/;
+                var yearRegex = /^\d{4}$/;
+                var isbnRegex = /^\d{13}$/; 
+
+                if (catalogueId === "") {
+                    alert("Please select a catalogue");
+                    return false;
+                }
+
+                if (title === "") {
+                    alert("Title cannot be empty");
+                    return false;
+                }
+
+                if (!authorName.match(alphabetRegex)) {
+                    alert("Author name must contain only alphabets");
+                    return false;
+                }
+
+                if (!price.match(priceRegex)) {
+                    alert("Price must be a valid number");
+                    return false;
+                }
+
+                if (!quantity.match(quantityRegex)) {
+                    alert("Quantity must be a positive integer");
+                    return false;
+                }
+
+                if (!isbn.match(isbnRegex)) {
+                    alert("ISBN must be in valid format");
+                    return false;
+                }
+
+                if (!publisher.match(alphabetRegex)) {
+                    alert("Publisher must contain only alphabets");
+                    return false;
+                }
+
+                if (!editionYear.match(yearRegex)) {
+                    alert("Edition year must be a valid 4-digit year");
+                    return false;
+                }
+
+                var currentYear = new Date().getFullYear();
+                if (parseInt(editionYear) > currentYear) {
+                    alert("Edition year cannot be in the future");
+                    return false;
+                }
+
+                return true;
+            }
+        </script>
+
+    </head>
+    <body>
+        <div class="container">
+            <jsp:include page="index.jsp" />
+
+            <div class="content">
+                <h1>Add Book</h1>
+                <form action="insertBook.jsp" method="post" onsubmit="return validateForm()" style="margin-top: 40px;">
+                    <label for="catalogueId">Catalogue</label>
+                    <select name="catalogueId" id="catalogueId">
+                        <option value="">Select Catalogue</option>
+                        <%
+                            try {
+                                Class.forName("com.mysql.cj.jdbc.Driver");
+                                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+                                Statement stmt = conn.createStatement();
+                                ResultSet rs = stmt.executeQuery("SELECT * FROM catalogue");
+
+                                while (rs.next()) {
+                                    String catalogueId = rs.getString("categogueId");
+                                    String title = rs.getString("title");
+                        %>
+
+                        <option value="<%= catalogueId%>"><%= title%></option>
+                        <%
+                                }
+                                rs.close();
+                                stmt.close();
+                                conn.close();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        %>
+                    </select>
+
+                    <label for="bookTitle">Title</label>
+                    <input type="text" id="bookTitle" name="bookTitle"><br>
+
+                    <label for="authorName">Author</label>
+                    <input type="text" id="authorName" name="authorName"><br>
+
+                    <label for="price">Price</label>
+                    <input type="text" id="price" name="price"><br>
+
+                    <label for="quantity">Quantity</label>
+                    <input type="text" id="quantity" name="quantity"><br>
+
+                    <label for="isbn">ISBN</label>
+                    <input type="text" id="isbn" name="isbn"><br>
+
+                    <label for="publisher">Publisher</label>
+                    <input type="text" id="publisher" name="publisher"><br>
+
+                    <label for="editionYear">Edition Year</label>
+                    <input type="text" id="editionYear" name="editionYear" ><br>
+
+
+                    <button type="submit">Add Book</button>
+                </form>
+            </div>
+        </div>
+
+    </body>
+</html>
+
+
+
+//addCatalogue.jsp
+
+<%-- 
+    Document   : addCatalogue
+    Created on : 15-Mar-2024, 9:59:36 AM
+    Author     : 91942
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Add Catalogue</title>
+        <style>
+            body {
+                font-family: Calibri, sans-serif; 
+                background-color: #f2f2f2;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                display: flex;
+                align-items: stretch;
+            }
+
+            .menu-bar {
+                background-color: #607d8b;
+                color: #fff;
+                padding: 20px;
+                margin-right: 20px;
+            }
+
+            .menu-bar a {
+                display: block;
+                color: #fff;
+                text-decoration: none;
+                margin-bottom: 10px;
+            }
+
+            .menu-bar a:hover {
+                background-color: #455a64;
+            }
+
+            .content {
+                background-color: #fff;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                margin: auto;
+                padding: 30px;
+                max-width: 700px;
+                border-radius: 5px;
+            }
+
+            h1 {
+                color: #607d8b;
+            }
+
+            label {
+                font-size: 18px;
+                color: #607d8b;
+                display: block;
+                margin-top:5px;
+                margin-bottom: 5px;
+            }
+
+            input, textarea {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+
+            button {
+                width: 100%;
+                background-color: #607d8b;
+                color: white;
+                padding: 14px 20px;
+                margin-top: 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            button:hover {
+                background-color: #78909c;
+            }
+        </style>
+        <script>
+            function validateForm() {
+                var catalogueTitle = document.getElementById("catalogueTitle").value;
+                var catalogueDescription = document.getElementById("catalogueDescription").value;
+
+                if (catalogueTitle.trim() === "") {
+                    alert("Catalogue Title cannot be empty");
+                    return false;
+                }
+
+                if (catalogueDescription.trim() === "") {
+                    alert("Catalogue Description cannot be empty");
+                    return false;
+                }
+
+                return true;
+            }
+        </script>
+
+    </head>
+    <body>
+        <div class="container">
+            <jsp:include page="index.jsp" />
+
+            <div class="content">
+
+                <h1>Add Catalogue</h1>
+                <form action="insertCatalogue.jsp" method="post" onsubmit="return validateForm()"  style="margin-top: 40px;">
+                    <label for="catalogueTitle">Catalogue Title</label>
+                    <input type="text" id="catalogueTitle" name="catalogueTitle"><br>
+                    
+                    <label for="catalogueDescription">Catalogue Description</label>
+                    <textarea id="catalogueDescription" name="catalogueDescription" rows="4"></textarea><br>
+
+                    <button type="submit">Add Catalogue</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
+
+
+//deleteBook.jsp
+
+<%-- 
+    Document   : deleteBook
+    Created on : 21-Mar-2024, 8:42:52 AM
+    Author     : 91942
+--%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" %>
+<%
+    String bookId = request.getParameter("id");
+
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+
+        String sql = "DELETE FROM book WHERE bookId = ?";
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, bookId);
+
+        int rowsAffected = pstmt.executeUpdate();
+
+        response.sendRedirect("showBook.jsp");
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+%>
+
+
+//deleteCatalogue.jsp
+
+<%-- 
+    Document   : deleteCatalogue
+    Created on : 21-Mar-2024, 8:42:37 AM
+    Author     : 91942
+--%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" %>
+<%
+    String catalogueId = request.getParameter("id");
+
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+
+        String sql = "DELETE FROM catalogue WHERE categogueId = ?";
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, catalogueId);
+
+        int rowsAffected = pstmt.executeUpdate();
+
+        response.sendRedirect("showCatalogue.jsp");
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+%>
+
+
+// insertBook.jsp
+
+<%-- 
+    Document   : insertBook
+    Created on : 21-Mar-2024, 9:41:58 AM
+    Author     : 91942
+--%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*, java.io.PrintWriter, java.util.Date" %>
+<%
+    String catalogueId = request.getParameter("catalogueId");
+    String bookTitle = request.getParameter("bookTitle");
+    String authorName = request.getParameter("authorName");
+    String price = request.getParameter("price");
+    String quantity = request.getParameter("quantity");
+    String isbn = request.getParameter("isbn");
+    String publisher = request.getParameter("publisher");
+    String editionYear = request.getParameter("editionYear");
+
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+
+        String sql = "INSERT INTO book (categogueId, title, author, price, quantity, ISBN, publisher, editionYear) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, Integer.parseInt(catalogueId));
+        pstmt.setString(2, bookTitle);
+        pstmt.setString(3, authorName);
+        pstmt.setString(4, price);
+        pstmt.setString(5, quantity);
+        pstmt.setString(6, isbn);
+        pstmt.setString(7, publisher);
+        pstmt.setString(8, editionYear);
+
+        int rowsAffected = pstmt.executeUpdate();
+
+        if (rowsAffected > 0) {
+            response.sendRedirect("showBook.jsp");
+        }
+    } catch (ClassNotFoundException | SQLException e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+%>
+
+
+//insertCatalogue.jsp
+/*
+ * Copyright (c) 1994, 2022, Oracle and/or its affiliates. All rights reserved.
+ * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+package java.lang;
+
+import java.io.*;
+import java.util.*;
+import jdk.internal.access.SharedSecrets;
+import jdk.internal.misc.InternalLock;
+
+/**
+ * The {@code Throwable} class is the superclass of all errors and
+ * exceptions in the Java language. Only objects that are instances of this
+ * class (or one of its subclasses) are thrown by the Java Virtual Machine or
+ * can be thrown by the Java {@code throw} statement. Similarly, only
+ * this class or one of its subclasses can be the argument type in a
+ * {@code catch} clause.
+ *
+ * For the purposes of compile-time checking of exceptions, {@code
+ * Throwable} and any subclass of {@code Throwable} that is not also a
+ * subclass of either {@link RuntimeException} or {@link Error} are
+ * regarded as checked exceptions.
+ *
+ * <p>Instances of two subclasses, {@link java.lang.Error} and
+ * {@link java.lang.Exception}, are conventionally used to indicate
+ * that exceptional situations have occurred. Typically, these instances
+ * are freshly created in the context of the exceptional situation so
+ * as to include relevant information (such as stack trace data).
+ *
+ * <p>A throwable contains a snapshot of the execution stack of its
+ * thread at the time it was created. It can also contain a message
+ * string that gives more information about the error. Over time, a
+ * throwable can {@linkplain Throwable#addSuppressed suppress} other
+ * throwables from being propagated.  Finally, the throwable can also
+ * contain a <i>cause</i>: another throwable that caused this
+ * throwable to be constructed.  The recording of this causal information
+ * is referred to as the <i>chained exception</i> facility, as the
+ * cause can, itself, have a cause, and so on, leading to a "chain" of
+ * exceptions, each caused by another.
+ *
+ * <p>One reason that a throwable may have a cause is that the class that
+ * throws it is built atop a lower layered abstraction, and an operation on
+ * the upper layer fails due to a failure in the lower layer.  It would be bad
+ * design to let the throwable thrown by the lower layer propagate outward, as
+ * it is generally unrelated to the abstraction provided by the upper layer.
+ * Further, doing so would tie the API of the upper layer to the details of
+ * its implementation, assuming the lower layer's exception was a checked
+ * exception.  Throwing a "wrapped exception" (i.e., an exception containing a
+ * cause) allows the upper layer to communicate the details of the failure to
+ * its caller without incurring either of these shortcomings.  It preserves
+ * the flexibility to change the implementation of the upper layer without
+ * changing its API (in particular, the set of exceptions thrown by its
+ * methods).
+ *
+ * <p>A second reason that a throwable may have a cause is that the method
+ * that throws it must conform to a general-purpose interface that does not
+ * permit the method to throw the cause directly.  For example, suppose
+ * a persistent collection conforms to the {@link java.util.Collection
+ * Collection} interface, and that its persistence is implemented atop
+ * {@code java.io}.  Suppose the internals of the {@code add} method
+ * can throw an {@link java.io.IOException IOException}.  The implementation
+ * can communicate the details of the {@code IOException} to its caller
+ * while conforming to the {@code Collection} interface by wrapping the
+ * {@code IOException} in an appropriate unchecked exception.  (The
+ * specification for the persistent collection should indicate that it is
+ * capable of throwing such exceptions.)
+ *
+ * <p>A cause can be associated with a throwable in two ways: via a
+ * constructor that takes the cause as an argument, or via the
+ * {@link #initCause(Throwable)} method.  New throwable classes that
+ * wish to allow causes to be associated with them should provide constructors
+ * that take a cause and delegate (perhaps indirectly) to one of the
+ * {@code Throwable} constructors that takes a cause.
+ *
+ * Because the {@code initCause} method is public, it allows a cause to be
+ * associated with any throwable, even a "legacy throwable" whose
+ * implementation predates the addition of the exception chaining mechanism to
+ * {@code Throwable}.
+ *
+ * <p>By convention, class {@code Throwable} and its subclasses have two
+ * constructors, one that takes no arguments and one that takes a
+ * {@code String} argument that can be used to produce a detail message.
+ * Further, those subclasses that might likely have a cause associated with
+ * them should have two more constructors, one that takes a
+ * {@code Throwable} (the cause), and one that takes a
+ * {@code String} (the detail message) and a {@code Throwable} (the
+ * cause).
+ *
+ * @author  Josh Bloch (Added exception chaining and programmatic access to
+ *          stack trace in 1.4.)
+ * @jls 11.2 Compile-Time Checking of Exceptions
+ * @since 1.0
+ */
+public class Throwable implements Serializable {
+    /** use serialVersionUID from JDK 1.0.2 for interoperability */
+    @java.io.Serial
+    private static final long serialVersionUID = -3042686055658047285L;
+
+    /**
+     * The JVM saves some indication of the stack backtrace in this slot.
+     */
+    private transient Object backtrace;
+
+    /**
+     * Specific details about the Throwable.  For example, for
+     * {@code FileNotFoundException}, this contains the name of
+     * the file that could not be found.
+     *
+     * @serial
+     */
+    private String detailMessage;
+
+
+    /**
+     * Holder class to defer initializing sentinel objects only used
+     * for serialization.
+     */
+    private static class SentinelHolder {
+        /**
+         * {@linkplain #setStackTrace(StackTraceElement[]) Setting the
+         * stack trace} to a one-element array containing this sentinel
+         * value indicates future attempts to set the stack trace will be
+         * ignored.  The sentinel is equal to the result of calling:<br>
+         * {@code new StackTraceElement("", "", null, Integer.MIN_VALUE)}
+         */
+        public static final StackTraceElement STACK_TRACE_ELEMENT_SENTINEL =
+            new StackTraceElement("", "", null, Integer.MIN_VALUE);
+
+        /**
+         * Sentinel value used in the serial form to indicate an immutable
+         * stack trace.
+         */
+        public static final StackTraceElement[] STACK_TRACE_SENTINEL =
+            new StackTraceElement[] {STACK_TRACE_ELEMENT_SENTINEL};
+    }
+
+    /**
+     * A shared value for an empty stack.
+     */
+    private static final StackTraceElement[] UNASSIGNED_STACK = new StackTraceElement[0];
+
+    /*
+     * To allow Throwable objects to be made immutable and safely
+     * reused by the JVM, such as OutOfMemoryErrors, fields of
+     * Throwable that are writable in response to user actions, cause,
+     * stackTrace, and suppressedExceptions obey the following
+     * protocol:
+     *
+     * 1) The fields are initialized to a non-null sentinel value
+     * which indicates the value has logically not been set.
+     *
+     * 2) Writing a null to the field indicates further writes
+     * are forbidden
+     *
+     * 3) The sentinel value may be replaced with another non-null
+     * value.
+     *
+     * For example, implementations of the HotSpot JVM have
+     * preallocated OutOfMemoryError objects to provide for better
+     * diagnosability of that situation.  These objects are created
+     * without calling the constructor for that class and the fields
+     * in question are initialized to null.  To support this
+     * capability, any new fields added to Throwable that require
+     * being initialized to a non-null value require a coordinated JVM
+     * change.
+     */
+
+    /**
+     * The throwable that caused this throwable to get thrown, or null if this
+     * throwable was not caused by another throwable, or if the causative
+     * throwable is unknown.  If this field is equal to this throwable itself,
+     * it indicates that the cause of this throwable has not yet been
+     * initialized.
+     *
+     * @serial
+     * @since 1.4
+     */
+    private Throwable cause = this;
+
+    /**
+     * The stack trace, as returned by {@link #getStackTrace()}.
+     *
+     * The field is initialized to a zero-length array.  A {@code
+     * null} value of this field indicates subsequent calls to {@link
+     * #setStackTrace(StackTraceElement[])} and {@link
+     * #fillInStackTrace()} will be no-ops.
+     *
+     * @serial
+     * @since 1.4
+     */
+    private StackTraceElement[] stackTrace = UNASSIGNED_STACK;
+
+    /**
+     * The JVM code sets the depth of the backtrace for later retrieval
+     */
+    private transient int depth;
+
+    // Setting this static field introduces an acceptable
+    // initialization dependency on a few java.util classes.
+    private static final List<Throwable> SUPPRESSED_SENTINEL = Collections.emptyList();
+
+    /**
+     * The list of suppressed exceptions, as returned by {@link
+     * #getSuppressed()}.  The list is initialized to a zero-element
+     * unmodifiable sentinel list.  When a serialized Throwable is
+     * read in, if the {@code suppressedExceptions} field points to a
+     * zero-element list, the field is reset to the sentinel value.
+     *
+     * @serial
+     * @since 1.7
+     */
+    @SuppressWarnings("serial") // Not statically typed as Serializable
+    private List<Throwable> suppressedExceptions = SUPPRESSED_SENTINEL;
+
+    /** Message for trying to suppress a null exception. */
+    private static final String NULL_CAUSE_MESSAGE = "Cannot suppress a null exception.";
+
+    /** Message for trying to suppress oneself. */
+    private static final String SELF_SUPPRESSION_MESSAGE = "Self-suppression not permitted";
+
+    /** Caption  for labeling causative exception stack traces */
+    private static final String CAUSE_CAPTION = "Caused by: ";
+
+    /** Caption for labeling suppressed exception stack traces */
+    private static final String SUPPRESSED_CAPTION = "Suppressed: ";
+
+    /**
+     * Constructs a new throwable with {@code null} as its detail message.
+     * The cause is not initialized, and may subsequently be initialized by a
+     * call to {@link #initCause}.
+     *
+     * <p>The {@link #fillInStackTrace()} method is called to initialize
+     * the stack trace data in the newly created throwable.
+     */
+    public Throwable() {
+        fillInStackTrace();
+    }
+
+    /**
+     * Constructs a new throwable with the specified detail message.  The
+     * cause is not initialized, and may subsequently be initialized by
+     * a call to {@link #initCause}.
+     *
+     * <p>The {@link #fillInStackTrace()} method is called to initialize
+     * the stack trace data in the newly created throwable.
+     *
+     * @param   message   the detail message. The detail message is saved for
+     *          later retrieval by the {@link #getMessage()} method.
+     */
+    public Throwable(String message) {
+        fillInStackTrace();
+        detailMessage = message;
+    }
+
+    /**
+     * Constructs a new throwable with the specified detail message and
+     * cause.  <p>Note that the detail message associated with
+     * {@code cause} is <i>not</i> automatically incorporated in
+     * this throwable's detail message.
+     *
+     * <p>The {@link #fillInStackTrace()} method is called to initialize
+     * the stack trace data in the newly created throwable.
+     *
+     * @param  message the detail message (which is saved for later retrieval
+     *         by the {@link #getMessage()} method).
+     * @param  cause the cause (which is saved for later retrieval by the
+     *         {@link #getCause()} method).  (A {@code null} value is
+     *         permitted, and indicates that the cause is nonexistent or
+     *         unknown.)
+     * @since  1.4
+     */
+    public Throwable(String message, Throwable cause) {
+        fillInStackTrace();
+        detailMessage = message;
+        this.cause = cause;
+    }
+
+    /**
+     * Constructs a new throwable with the specified cause and a detail
+     * message of {@code (cause==null ? null : cause.toString())} (which
+     * typically contains the class and detail message of {@code cause}).
+     * This constructor is useful for throwables that are little more than
+     * wrappers for other throwables (for example, {@link
+     * java.security.PrivilegedActionException}).
+     *
+     * <p>The {@link #fillInStackTrace()} method is called to initialize
+     * the stack trace data in the newly created throwable.
+     *
+     * @param  cause the cause (which is saved for later retrieval by the
+     *         {@link #getCause()} method).  (A {@code null} value is
+     *         permitted, and indicates that the cause is nonexistent or
+     *         unknown.)
+     * @since  1.4
+     */
+    public Throwable(Throwable cause) {
+        fillInStackTrace();
+        detailMessage = (cause==null ? null : cause.toString());
+        this.cause = cause;
+    }
+
+    /**
+     * Constructs a new throwable with the specified detail message,
+     * cause, {@linkplain #addSuppressed suppression} enabled or
+     * disabled, and writable stack trace enabled or disabled.  If
+     * suppression is disabled, {@link #getSuppressed} for this object
+     * will return a zero-length array and calls to {@link
+     * #addSuppressed} that would otherwise append an exception to the
+     * suppressed list will have no effect.  If the writable stack
+     * trace is false, this constructor will not call {@link
+     * #fillInStackTrace()}, a {@code null} will be written to the
+     * {@code stackTrace} field, and subsequent calls to {@code
+     * fillInStackTrace} and {@link
+     * #setStackTrace(StackTraceElement[])} will not set the stack
+     * trace.  If the writable stack trace is false, {@link
+     * #getStackTrace} will return a zero length array.
+     *
+     * <p>Note that the other constructors of {@code Throwable} treat
+     * suppression as being enabled and the stack trace as being
+     * writable.  Subclasses of {@code Throwable} should document any
+     * conditions under which suppression is disabled and document
+     * conditions under which the stack trace is not writable.
+     * Disabling of suppression should only occur in exceptional
+     * circumstances where special requirements exist, such as a
+     * virtual machine reusing exception objects under low-memory
+     * situations.  Circumstances where a given exception object is
+     * repeatedly caught and rethrown, such as to implement control
+     * flow between two sub-systems, is another situation where
+     * immutable throwable objects would be appropriate.
+     *
+     * @param  message the detail message.
+     * @param cause the cause.  (A {@code null} value is permitted,
+     * and indicates that the cause is nonexistent or unknown.)
+     * @param enableSuppression whether or not suppression is enabled
+     * @param writableStackTrace whether or not the stack trace is writable
+     *
+     * @see OutOfMemoryError
+     * @see NullPointerException
+     * @see ArithmeticException
+     * @since 1.7
+     */
+    protected Throwable(String message, Throwable cause,
+                        boolean enableSuppression,
+                        boolean writableStackTrace) {
+        if (writableStackTrace) {
+            fillInStackTrace();
+        } else {
+            stackTrace = null;
+        }
+        detailMessage = message;
+        this.cause = cause;
+        if (!enableSuppression)
+            suppressedExceptions = null;
+    }
+
+    /**
+     * Returns the detail message string of this throwable.
+     *
+     * @return  the detail message string of this {@code Throwable} instance
+     *          (which may be {@code null}).
+     */
+    public String getMessage() {
+        return detailMessage;
+    }
+
+    /**
+     * Creates a localized description of this throwable.
+     * Subclasses may override this method in order to produce a
+     * locale-specific message.  For subclasses that do not override this
+     * method, the default implementation returns the same result as
+     * {@code getMessage()}.
+     *
+     * @return  The localized description of this throwable.
+     * @since   1.1
+     */
+    public String getLocalizedMessage() {
+        return getMessage();
+    }
+
+    /**
+     * Returns the cause of this throwable or {@code null} if the
+     * cause is nonexistent or unknown.  (The cause is the throwable that
+     * caused this throwable to get thrown.)
+     *
+     * <p>This implementation returns the cause that was supplied via one of
+     * the constructors requiring a {@code Throwable}, or that was set after
+     * creation with the {@link #initCause(Throwable)} method.  While it is
+     * typically unnecessary to override this method, a subclass can override
+     * it to return a cause set by some other means.  This is appropriate for
+     * a "legacy chained throwable" that predates the addition of chained
+     * exceptions to {@code Throwable}.  Note that it is <i>not</i>
+     * necessary to override any of the {@code PrintStackTrace} methods,
+     * all of which invoke the {@code getCause} method to determine the
+     * cause of a throwable.
+     *
+     * @return  the cause of this throwable or {@code null} if the
+     *          cause is nonexistent or unknown.
+     * @since 1.4
+     */
+    public synchronized Throwable getCause() {
+        return (cause==this ? null : cause);
+    }
+
+    /**
+     * Initializes the <i>cause</i> of this throwable to the specified value.
+     * (The cause is the throwable that caused this throwable to get thrown.)
+     *
+     * <p>This method can be called at most once.  It is generally called from
+     * within the constructor, or immediately after creating the
+     * throwable.  If this throwable was created
+     * with {@link #Throwable(Throwable)} or
+     * {@link #Throwable(String,Throwable)}, this method cannot be called
+     * even once.
+     *
+     * <p>An example of using this method on a legacy throwable type
+     * without other support for setting the cause is:
+     *
+     * <pre>
+     * try {
+     *     lowLevelOp();
+     * } catch (LowLevelException le) {
+     *     throw (HighLevelException)
+     *           new HighLevelException().initCause(le); // Legacy constructor
+     * }
+     * </pre>
+     *
+     * @param  cause the cause (which is saved for later retrieval by the
+     *         {@link #getCause()} method).  (A {@code null} value is
+     *         permitted, and indicates that the cause is nonexistent or
+     *         unknown.)
+     * @return  a reference to this {@code Throwable} instance.
+     * @throws IllegalArgumentException if {@code cause} is this
+     *         throwable.  (A throwable cannot be its own cause.)
+     * @throws IllegalStateException if this throwable was
+     *         created with {@link #Throwable(Throwable)} or
+     *         {@link #Throwable(String,Throwable)}, or this method has already
+     *         been called on this throwable.
+     * @since  1.4
+     */
+    public synchronized Throwable initCause(Throwable cause) {
+        if (this.cause != this)
+            throw new IllegalStateException("Can't overwrite cause with " +
+                                            Objects.toString(cause, "a null"), this);
+        if (cause == this)
+            throw new IllegalArgumentException("Self-causation not permitted", this);
+        this.cause = cause;
+        return this;
+    }
+
+    /*
+     * This is called by readObject of a few exceptions such as
+     * ClassNotFoundException and ExceptionInInitializerError to deserialize
+     * a stream output from an older runtime version where the cause may
+     * have set to null.
+     */
+    final void setCause(Throwable t) {
+        this.cause = t;
+    }
+
+    /**
+     * Returns a short description of this throwable.
+     * The result is the concatenation of:
+     * <ul>
+     * <li> the {@linkplain Class#getName() name} of the class of this object
+     * <li> ": " (a colon and a space)
+     * <li> the result of invoking this object's {@link #getLocalizedMessage}
+     *      method
+     * </ul>
+     * If {@code getLocalizedMessage} returns {@code null}, then just
+     * the class name is returned.
+     *
+     * @return a string representation of this throwable.
+     */
+    public String toString() {
+        String s = getClass().getName();
+        String message = getLocalizedMessage();
+        return (message != null) ? (s + ": " + message) : s;
+    }
+
+    /**
+     * Prints this throwable and its backtrace to the
+     * standard error stream. This method prints a stack trace for this
+     * {@code Throwable} object on the error output stream that is
+     * the value of the field {@code System.err}. The first line of
+     * output contains the result of the {@link #toString()} method for
+     * this object.  Remaining lines represent data previously recorded by
+     * the method {@link #fillInStackTrace()}. The format of this
+     * information depends on the implementation, but the following
+     * example may be regarded as typical:
+     * <blockquote><pre>
+     * java.lang.NullPointerException
+     *         at MyClass.mash(MyClass.java:9)
+     *         at MyClass.crunch(MyClass.java:6)
+     *         at MyClass.main(MyClass.java:3)
+     * </pre></blockquote>
+     * This example was produced by running the program:
+     * <pre>
+     * class MyClass {
+     *     public static void main(String[] args) {
+     *         crunch(null);
+     *     }
+     *     static void crunch(int[] a) {
+     *         mash(a);
+     *     }
+     *     static void mash(int[] b) {
+     *         System.out.println(b[0]);
+     *     }
+     * }
+     * </pre>
+     * The backtrace for a throwable with an initialized, non-null cause
+     * should generally include the backtrace for the cause.  The format
+     * of this information depends on the implementation, but the following
+     * example may be regarded as typical:
+     * <pre>
+     * HighLevelException: MidLevelException: LowLevelException
+     *         at Junk.a(Junk.java:13)
+     *         at Junk.main(Junk.java:4)
+     * Caused by: MidLevelException: LowLevelException
+     *         at Junk.c(Junk.java:23)
+     *         at Junk.b(Junk.java:17)
+     *         at Junk.a(Junk.java:11)
+     *         ... 1 more
+     * Caused by: LowLevelException
+     *         at Junk.e(Junk.java:30)
+     *         at Junk.d(Junk.java:27)
+     *         at Junk.c(Junk.java:21)
+     *         ... 3 more
+     * </pre>
+     * Note the presence of lines containing the characters {@code "..."}.
+     * These lines indicate that the remainder of the stack trace for this
+     * exception matches the indicated number of frames from the bottom of the
+     * stack trace of the exception that was caused by this exception (the
+     * "enclosing" exception).  This shorthand can greatly reduce the length
+     * of the output in the common case where a wrapped exception is thrown
+     * from the same method as the "causative exception" is caught.  The above
+     * example was produced by running the program:
+     * <pre>
+     * public class Junk {
+     *     public static void main(String args[]) {
+     *         try {
+     *             a();
+     *         } catch(HighLevelException e) {
+     *             e.printStackTrace();
+     *         }
+     *     }
+     *     static void a() throws HighLevelException {
+     *         try {
+     *             b();
+     *         } catch(MidLevelException e) {
+     *             throw new HighLevelException(e);
+     *         }
+     *     }
+     *     static void b() throws MidLevelException {
+     *         c();
+     *     }
+     *     static void c() throws MidLevelException {
+     *         try {
+     *             d();
+     *         } catch(LowLevelException e) {
+     *             throw new MidLevelException(e);
+     *         }
+     *     }
+     *     static void d() throws LowLevelException {
+     *        e();
+     *     }
+     *     static void e() throws LowLevelException {
+     *         throw new LowLevelException();
+     *     }
+     * }
+     *
+     * class HighLevelException extends Exception {
+     *     HighLevelException(Throwable cause) { super(cause); }
+     * }
+     *
+     * class MidLevelException extends Exception {
+     *     MidLevelException(Throwable cause)  { super(cause); }
+     * }
+     *
+     * class LowLevelException extends Exception {
+     * }
+     * </pre>
+     * As of release 7, the platform supports the notion of
+     * <i>suppressed exceptions</i> (in conjunction with the {@code
+     * try}-with-resources statement). Any exceptions that were
+     * suppressed in order to deliver an exception are printed out
+     * beneath the stack trace.  The format of this information
+     * depends on the implementation, but the following example may be
+     * regarded as typical:
+     *
+     * <pre>
+     * Exception in thread "main" java.lang.Exception: Something happened
+     *         at Foo.bar(Foo.java:10)
+     *         at Foo.main(Foo.java:5)
+     *         Suppressed: Resource$CloseFailException: Resource ID = 0
+     *                 at Resource.close(Resource.java:26)
+     *                 at Foo.bar(Foo.java:9)
+     *                 ... 1 more
+     * </pre>
+     * Note that the "... n more" notation is used on suppressed exceptions
+     * just as it is used on causes. Unlike causes, suppressed exceptions are
+     * indented beyond their "containing exceptions."
+     *
+     * <p>An exception can have both a cause and one or more suppressed
+     * exceptions:
+     * <pre>
+     * Exception in thread "main" java.lang.Exception: Main block
+     *         at Foo3.main(Foo3.java:7)
+     *         Suppressed: Resource$CloseFailException: Resource ID = 2
+     *                 at Resource.close(Resource.java:26)
+     *                 at Foo3.main(Foo3.java:5)
+     *         Suppressed: Resource$CloseFailException: Resource ID = 1
+     *                 at Resource.close(Resource.java:26)
+     *                 at Foo3.main(Foo3.java:5)
+     * Caused by: java.lang.Exception: I did it
+     *         at Foo3.main(Foo3.java:8)
+     * </pre>
+     * Likewise, a suppressed exception can have a cause:
+     * <pre>
+     * Exception in thread "main" java.lang.Exception: Main block
+     *         at Foo4.main(Foo4.java:6)
+     *         Suppressed: Resource2$CloseFailException: Resource ID = 1
+     *                 at Resource2.close(Resource2.java:20)
+     *                 at Foo4.main(Foo4.java:5)
+     *         Caused by: java.lang.Exception: Rats, you caught me
+     *                 at Resource2$CloseFailException.&lt;init&gt;(Resource2.java:45)
+     *                 ... 2 more
+     * </pre>
+     */
+    public void printStackTrace() {
+        printStackTrace(System.err);
+    }
+
+    /**
+     * Prints this throwable and its backtrace to the specified print stream.
+     *
+     * @param s {@code PrintStream} to use for output
+     */
+    public void printStackTrace(PrintStream s) {
+        printStackTrace(new WrappedPrintStream(s));
+    }
+
+    private void printStackTrace(PrintStreamOrWriter s) {
+        Object lock = s.lock();
+        if (lock instanceof InternalLock locker) {
+            locker.lock();
+            try {
+                lockedPrintStackTrace(s);
+            } finally {
+                locker.unlock();
+            }
+        } else synchronized (lock) {
+            lockedPrintStackTrace(s);
+        }
+    }
+
+    private void lockedPrintStackTrace(PrintStreamOrWriter s) {
+        // Guard against malicious overrides of Throwable.equals by
+        // using a Set with identity equality semantics.
+        Set<Throwable> dejaVu = Collections.newSetFromMap(new IdentityHashMap<>());
+        dejaVu.add(this);
+
+        // Print our stack trace
+        s.println(this);
+        StackTraceElement[] trace = getOurStackTrace();
+        for (StackTraceElement traceElement : trace)
+            s.println("\tat " + traceElement);
+
+        // Print suppressed exceptions, if any
+        for (Throwable se : getSuppressed())
+            se.printEnclosedStackTrace(s, trace, SUPPRESSED_CAPTION, "\t", dejaVu);
+
+        // Print cause, if any
+        Throwable ourCause = getCause();
+        if (ourCause != null)
+            ourCause.printEnclosedStackTrace(s, trace, CAUSE_CAPTION, "", dejaVu);
+    }
+
+    /**
+     * Print our stack trace as an enclosed exception for the specified
+     * stack trace.
+     */
+    private void printEnclosedStackTrace(PrintStreamOrWriter s,
+                                         StackTraceElement[] enclosingTrace,
+                                         String caption,
+                                         String prefix,
+                                         Set<Throwable> dejaVu) {
+        assert s.isLockedByCurrentThread();
+        if (dejaVu.contains(this)) {
+            s.println(prefix + caption + "[CIRCULAR REFERENCE: " + this + "]");
+        } else {
+            dejaVu.add(this);
+            // Compute number of frames in common between this and enclosing trace
+            StackTraceElement[] trace = getOurStackTrace();
+            int m = trace.length - 1;
+            int n = enclosingTrace.length - 1;
+            while (m >= 0 && n >=0 && trace[m].equals(enclosingTrace[n])) {
+                m--; n--;
+            }
+            int framesInCommon = trace.length - 1 - m;
+
+            // Print our stack trace
+            s.println(prefix + caption + this);
+            for (int i = 0; i <= m; i++)
+                s.println(prefix + "\tat " + trace[i]);
+            if (framesInCommon != 0)
+                s.println(prefix + "\t... " + framesInCommon + " more");
+
+            // Print suppressed exceptions, if any
+            for (Throwable se : getSuppressed())
+                se.printEnclosedStackTrace(s, trace, SUPPRESSED_CAPTION,
+                                           prefix +"\t", dejaVu);
+
+            // Print cause, if any
+            Throwable ourCause = getCause();
+            if (ourCause != null)
+                ourCause.printEnclosedStackTrace(s, trace, CAUSE_CAPTION, prefix, dejaVu);
+        }
+    }
+
+    /**
+     * Prints this throwable and its backtrace to the specified
+     * print writer.
+     *
+     * @param s {@code PrintWriter} to use for output
+     * @since   1.1
+     */
+    public void printStackTrace(PrintWriter s) {
+        printStackTrace(new WrappedPrintWriter(s));
+    }
+
+    /**
+     * Wrapper class for PrintStream and PrintWriter to enable a single
+     * implementation of printStackTrace.
+     */
+    private abstract static class PrintStreamOrWriter {
+        /** Returns the object to be locked when using this StreamOrWriter */
+        abstract Object lock();
+
+        boolean isLockedByCurrentThread() {
+            Object lock = lock();
+            if (lock instanceof InternalLock locker) {
+                return locker.isHeldByCurrentThread();
+            } else {
+                return Thread.holdsLock(lock);
+            }
+        }
+
+        /** Prints the specified string as a line on this StreamOrWriter */
+        abstract void println(Object o);
+    }
+
+    private static class WrappedPrintStream extends PrintStreamOrWriter {
+        private final PrintStream printStream;
+
+        WrappedPrintStream(PrintStream printStream) {
+            this.printStream = printStream;
+        }
+
+        Object lock() {
+            return SharedSecrets.getJavaIOPrintStreamAccess().lock(printStream);
+        }
+
+        void println(Object o) {
+            printStream.println(o);
+        }
+    }
+
+    private static class WrappedPrintWriter extends PrintStreamOrWriter {
+        private final PrintWriter printWriter;
+
+        WrappedPrintWriter(PrintWriter printWriter) {
+            this.printWriter = printWriter;
+        }
+
+        Object lock() {
+            return SharedSecrets.getJavaIOPrintWriterAccess().lock(printWriter);
+        }
+
+        void println(Object o) {
+            printWriter.println(o);
+        }
+    }
+
+    /**
+     * Fills in the execution stack trace. This method records within this
+     * {@code Throwable} object information about the current state of
+     * the stack frames for the current thread.
+     *
+     * <p>If the stack trace of this {@code Throwable} {@linkplain
+     * Throwable#Throwable(String, Throwable, boolean, boolean) is not
+     * writable}, calling this method has no effect.
+     *
+     * @return  a reference to this {@code Throwable} instance.
+     * @see     java.lang.Throwable#printStackTrace()
+     */
+    public synchronized Throwable fillInStackTrace() {
+        if (stackTrace != null ||
+            backtrace != null /* Out of protocol state */ ) {
+            fillInStackTrace(0);
+            stackTrace = UNASSIGNED_STACK;
+        }
+        return this;
+    }
+
+    private native Throwable fillInStackTrace(int dummy);
+
+    /**
+     * Provides programmatic access to the stack trace information printed by
+     * {@link #printStackTrace()}.  Returns an array of stack trace elements,
+     * each representing one stack frame.  The zeroth element of the array
+     * (assuming the array's length is non-zero) represents the top of the
+     * stack, which is the last method invocation in the sequence.  Typically,
+     * this is the point at which this throwable was created and thrown.
+     * The last element of the array (assuming the array's length is non-zero)
+     * represents the bottom of the stack, which is the first method invocation
+     * in the sequence.
+     *
+     * <p>Some virtual machines may, under some circumstances, omit one
+     * or more stack frames from the stack trace.  In the extreme case,
+     * a virtual machine that has no stack trace information concerning
+     * this throwable is permitted to return a zero-length array from this
+     * method.  Generally speaking, the array returned by this method will
+     * contain one element for every frame that would be printed by
+     * {@code printStackTrace}.  Writes to the returned array do not
+     * affect future calls to this method.
+     *
+     * @return an array of stack trace elements representing the stack trace
+     *         pertaining to this throwable.
+     * @since  1.4
+     */
+    public StackTraceElement[] getStackTrace() {
+        return getOurStackTrace().clone();
+    }
+
+    private synchronized StackTraceElement[] getOurStackTrace() {
+        // Initialize stack trace field with information from
+        // backtrace if this is the first call to this method
+        if (stackTrace == UNASSIGNED_STACK || stackTrace == null) {
+            if (backtrace != null) { /* Out of protocol state */
+                stackTrace = StackTraceElement.of(backtrace, depth);
+            } else {
+                // no backtrace, fillInStackTrace overridden or not called
+                return UNASSIGNED_STACK;
+            }
+        }
+        return stackTrace;
+    }
+
+    /**
+     * Sets the stack trace elements that will be returned by
+     * {@link #getStackTrace()} and printed by {@link #printStackTrace()}
+     * and related methods.
+     *
+     * This method, which is designed for use by RPC frameworks and other
+     * advanced systems, allows the client to override the default
+     * stack trace that is either generated by {@link #fillInStackTrace()}
+     * when a throwable is constructed or deserialized when a throwable is
+     * read from a serialization stream.
+     *
+     * <p>If the stack trace of this {@code Throwable} {@linkplain
+     * Throwable#Throwable(String, Throwable, boolean, boolean) is not
+     * writable}, calling this method has no effect other than
+     * validating its argument.
+     *
+     * @param   stackTrace the stack trace elements to be associated with
+     * this {@code Throwable}.  The specified array is copied by this
+     * call; changes in the specified array after the method invocation
+     * returns will have no effect on this {@code Throwable}'s stack
+     * trace.
+     *
+     * @throws NullPointerException if {@code stackTrace} is
+     *         {@code null} or if any of the elements of
+     *         {@code stackTrace} are {@code null}
+     *
+     * @since  1.4
+     */
+    public void setStackTrace(StackTraceElement[] stackTrace) {
+        // Validate argument
+        StackTraceElement[] defensiveCopy = stackTrace.clone();
+        for (int i = 0; i < defensiveCopy.length; i++) {
+            if (defensiveCopy[i] == null)
+                throw new NullPointerException("stackTrace[" + i + "]");
+        }
+
+        synchronized (this) {
+            if (this.stackTrace == null && // Immutable stack
+                backtrace == null) // Test for out of protocol state
+                return;
+            this.stackTrace = defensiveCopy;
+        }
+    }
+
+    /**
+     * Reads a {@code Throwable} from a stream, enforcing
+     * well-formedness constraints on fields.  Null entries and
+     * self-pointers are not allowed in the list of {@code
+     * suppressedExceptions}.  Null entries are not allowed for stack
+     * trace elements.  A null stack trace in the serial form results
+     * in a zero-length stack element array. A single-element stack
+     * trace whose entry is equal to {@code new StackTraceElement("",
+     * "", null, Integer.MIN_VALUE)} results in a {@code null} {@code
+     * stackTrace} field.
+     *
+     * Note that there are no constraints on the value the {@code
+     * cause} field can hold; both {@code null} and {@code this} are
+     * valid values for the field.
+     *
+     * @param  s the {@code ObjectInputStream} from which data is read
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if a serialized class cannot be loaded
+     */
+    @java.io.Serial
+    private void readObject(ObjectInputStream s)
+        throws IOException, ClassNotFoundException {
+        s.defaultReadObject();     // read in all fields
+
+        // Set suppressed exceptions and stack trace elements fields
+        // to marker values until the contents from the serial stream
+        // are validated.
+        List<Throwable> candidateSuppressedExceptions = suppressedExceptions;
+        suppressedExceptions = SUPPRESSED_SENTINEL;
+
+        StackTraceElement[] candidateStackTrace = stackTrace;
+        stackTrace = UNASSIGNED_STACK.clone();
+
+        if (candidateSuppressedExceptions != null) {
+            int suppressedSize = validateSuppressedExceptionsList(candidateSuppressedExceptions);
+            if (suppressedSize > 0) { // Copy valid Throwables to new list
+                var suppList  = new ArrayList<Throwable>(Math.min(100, suppressedSize));
+
+                for (Throwable t : candidateSuppressedExceptions) {
+                    // Enforce constraints on suppressed exceptions in
+                    // case of corrupt or malicious stream.
+                    Objects.requireNonNull(t, NULL_CAUSE_MESSAGE);
+                    if (t == this)
+                        throw new IllegalArgumentException(SELF_SUPPRESSION_MESSAGE);
+                    suppList.add(t);
+                }
+                // If there are any invalid suppressed exceptions,
+                // implicitly use the sentinel value assigned earlier.
+                suppressedExceptions = suppList;
+            }
+        } else {
+            suppressedExceptions = null;
+        }
+
+        /*
+         * For zero-length stack traces, use a clone of
+         * UNASSIGNED_STACK rather than UNASSIGNED_STACK itself to
+         * allow identity comparison against UNASSIGNED_STACK in
+         * getOurStackTrace.  The identity of UNASSIGNED_STACK in
+         * stackTrace indicates to the getOurStackTrace method that
+         * the stackTrace needs to be constructed from the information
+         * in backtrace.
+         */
+        if (candidateStackTrace != null) {
+            // Work from a clone of the candidateStackTrace to ensure
+            // consistency of checks.
+            candidateStackTrace = candidateStackTrace.clone();
+            if (candidateStackTrace.length >= 1) {
+                if (candidateStackTrace.length == 1 &&
+                        // Check for the marker of an immutable stack trace
+                        SentinelHolder.STACK_TRACE_ELEMENT_SENTINEL.equals(candidateStackTrace[0])) {
+                    stackTrace = null;
+                } else { // Verify stack trace elements are non-null.
+                    for (StackTraceElement ste : candidateStackTrace) {
+                        Objects.requireNonNull(ste, "null StackTraceElement in serial stream.");
+                    }
+                    stackTrace = candidateStackTrace;
+                }
+            }
+        }
+        // A null stackTrace field in the serial form can result from
+        // an exception serialized without that field in older JDK
+        // releases; treat such exceptions as having empty stack
+        // traces by leaving stackTrace assigned to a clone of
+        // UNASSIGNED_STACK.
+    }
+
+    private int validateSuppressedExceptionsList(List<Throwable> deserSuppressedExceptions)
+        throws IOException {
+        if (!Object.class.getModule().
+            equals(deserSuppressedExceptions.getClass().getModule())) {
+            throw new StreamCorruptedException("List implementation not in base module.");
+        } else {
+            int size = deserSuppressedExceptions.size();
+            if (size < 0) {
+                throw new StreamCorruptedException("Negative list size reported.");
+            }
+            return size;
+        }
+    }
+
+    /**
+     * Write a {@code Throwable} object to a stream.
+     *
+     * A {@code null} stack trace field is represented in the serial
+     * form as a one-element array whose element is equal to {@code
+     * new StackTraceElement("", "", null, Integer.MIN_VALUE)}.
+     *
+     * @param  s the {@code ObjectOutputStream} to which data is written
+     * @throws IOException if an I/O error occurs
+     */
+    @java.io.Serial
+    private synchronized void writeObject(ObjectOutputStream s)
+        throws IOException {
+        // Ensure that the stackTrace field is initialized to a
+        // non-null value, if appropriate.  As of JDK 7, a null stack
+        // trace field is a valid value indicating the stack trace
+        // should not be set.
+        getOurStackTrace();
+
+        StackTraceElement[] oldStackTrace = stackTrace;
+        try {
+            if (stackTrace == null)
+                stackTrace = SentinelHolder.STACK_TRACE_SENTINEL;
+            s.defaultWriteObject();
+        } finally {
+            stackTrace = oldStackTrace;
+        }
+    }
+
+    /**
+     * Appends the specified exception to the exceptions that were
+     * suppressed in order to deliver this exception. This method is
+     * thread-safe and typically called (automatically and implicitly)
+     * by the {@code try}-with-resources statement.
+     *
+     * <p>The suppression behavior is enabled <em>unless</em> disabled
+     * {@linkplain #Throwable(String, Throwable, boolean, boolean) via
+     * a constructor}.  When suppression is disabled, this method does
+     * nothing other than to validate its argument.
+     *
+     * <p>Note that when one exception {@linkplain
+     * #initCause(Throwable) causes} another exception, the first
+     * exception is usually caught and then the second exception is
+     * thrown in response.  In other words, there is a causal
+     * connection between the two exceptions.
+     *
+     * In contrast, there are situations where two independent
+     * exceptions can be thrown in sibling code blocks, in particular
+     * in the {@code try} block of a {@code try}-with-resources
+     * statement and the compiler-generated {@code finally} block
+     * which closes the resource.
+     *
+     * In these situations, only one of the thrown exceptions can be
+     * propagated.  In the {@code try}-with-resources statement, when
+     * there are two such exceptions, the exception originating from
+     * the {@code try} block is propagated and the exception from the
+     * {@code finally} block is added to the list of exceptions
+     * suppressed by the exception from the {@code try} block.  As an
+     * exception unwinds the stack, it can accumulate multiple
+     * suppressed exceptions.
+     *
+     * <p>An exception may have suppressed exceptions while also being
+     * caused by another exception.  Whether or not an exception has a
+     * cause is semantically known at the time of its creation, unlike
+     * whether or not an exception will suppress other exceptions
+     * which is typically only determined after an exception is
+     * thrown.
+     *
+     * <p>Note that programmer written code is also able to take
+     * advantage of calling this method in situations where there are
+     * multiple sibling exceptions and only one can be propagated.
+     *
+     * @param exception the exception to be added to the list of
+     *        suppressed exceptions
+     * @throws IllegalArgumentException if {@code exception} is this
+     *         throwable; a throwable cannot suppress itself.
+     * @throws NullPointerException if {@code exception} is {@code null}
+     * @since 1.7
+     */
+    public final synchronized void addSuppressed(Throwable exception) {
+        if (exception == this)
+            throw new IllegalArgumentException(SELF_SUPPRESSION_MESSAGE, exception);
+
+        Objects.requireNonNull(exception, NULL_CAUSE_MESSAGE);
+
+        if (suppressedExceptions == null) // Suppressed exceptions not recorded
+            return;
+
+        if (suppressedExceptions == SUPPRESSED_SENTINEL)
+            suppressedExceptions = new ArrayList<>(1);
+
+        suppressedExceptions.add(exception);
+    }
+
+    private static final Throwable[] EMPTY_THROWABLE_ARRAY = new Throwable[0];
+
+    /**
+     * Returns an array containing all of the exceptions that were
+     * suppressed, typically by the {@code try}-with-resources
+     * statement, in order to deliver this exception.
+     *
+     * If no exceptions were suppressed or {@linkplain
+     * #Throwable(String, Throwable, boolean, boolean) suppression is
+     * disabled}, an empty array is returned.  This method is
+     * thread-safe.  Writes to the returned array do not affect future
+     * calls to this method.
+     *
+     * @return an array containing all of the exceptions that were
+     *         suppressed to deliver this exception.
+     * @since 1.7
+     */
+    public final synchronized Throwable[] getSuppressed() {
+        if (suppressedExceptions == SUPPRESSED_SENTINEL ||
+            suppressedExceptions == null)
+            return EMPTY_THROWABLE_ARRAY;
+        else
+            return suppressedExceptions.toArray(EMPTY_THROWABLE_ARRAY);
+    }
+}
+
+
+//modifyBook.jsp
+<%-- 
+    Document   : modifyBook
+    Created on : 21-Mar-2024, 9:41:58 AM
+    Author     : 91942
+--%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*, java.io.PrintWriter, java.util.Date" %>
+<%
+    String bookId = request.getParameter("bookId");
+    String catalogueId = request.getParameter("catalogueId");
+    String bookTitle = request.getParameter("bookTitle");
+    String authorName = request.getParameter("authorName");
+    String price = request.getParameter("price");
+    String quantity = request.getParameter("quantity");
+    String isbn = request.getParameter("isbn");
+    String publisher = request.getParameter("publisher");
+    String editionYear = request.getParameter("editionYear");
+
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+
+        String sql = "UPDATE book SET categogueId = ?, title = ?, author = ?, price = ?, quantity = ?, ISBN = ?, publisher = ?, editionYear = ? WHERE bookId = ?";
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, Integer.parseInt(catalogueId));
+        pstmt.setString(2, bookTitle);
+        pstmt.setString(3, authorName);
+        pstmt.setString(4, price);
+        pstmt.setString(5, quantity);
+        pstmt.setString(6, isbn);
+        pstmt.setString(7, publisher);
+        pstmt.setString(8, editionYear);
+        pstmt.setInt(9, Integer.parseInt(bookId));
+
+        int rowsAffected = pstmt.executeUpdate();
+
+        response.sendRedirect("showBook.jsp");
+
+    } catch (ClassNotFoundException | SQLException e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+%>
+
+
+//modifyCatalogue.jsp
+
+<%-- 
+    Document   : modifyCatalogue
+    Created on : 21-Mar-2024, 9:41:31 AM
+    Author     : 91942
+--%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*" %>
+<%
+    String catalogueId = request.getParameter("catalogueId");
+    String catalogueTitle = request.getParameter("catalogueTitle");
+    String catalogueDescription = request.getParameter("catalogueDescription");
+
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+
+        String sql = "UPDATE catalogue SET title = ?, description = ? WHERE categogueId = ?";
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, catalogueTitle);
+        pstmt.setString(2, catalogueDescription);
+        pstmt.setInt(3, Integer.parseInt(catalogueId));
+
+        int rowsAffected = pstmt.executeUpdate();
+
+        response.sendRedirect("showCatalogue.jsp");
+    } catch (SQLException | ClassNotFoundException e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+%>
+
+
+//searchBook.jsp
+<%-- 
+    Document   : searchBook
+    Created on : 15-Mar-2024, 9:59:36 AM
+    Author     : 91942
+--%>
+<%@ page import="java.sql.*" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    String searchKey = request.getParameter("searchKey");
+    String searchKeyword = request.getParameter("searchKeyword");
+
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
+
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+
+        if (searchKey != null && searchKeyword != null) {
+            String sql = "";
+            if ("book_id".equals(searchKey)) {
+                sql = "SELECT * FROM book WHERE bookId LIKE ?";
+            } else if ("catalogue_id".equals(searchKey)) {
+                sql = "SELECT * FROM book WHERE categogueId LIKE ?";
+            } else if ("book_title".equals(searchKey)) {
+                sql = "SELECT * FROM book WHERE title LIKE ?";
+            } else if ("author_name".equals(searchKey)) {
+                sql = "SELECT * FROM book WHERE author LIKE ?";
+            } else if ("price".equals(searchKey)) {
+                sql = "SELECT * FROM book WHERE price LIKE ?";
+            } else if ("quantity".equals(searchKey)) {
+                sql = "SELECT * FROM book WHERE quantity LIKE ?";
+            } else if ("isbn_no".equals(searchKey)) {
+                sql = "SELECT * FROM book WHERE ISBN LIKE ?";
+            } else if ("publisher".equals(searchKey)) {
+                sql = "SELECT * FROM book WHERE publisher LIKE ?";
+            } else if ("edition_year".equals(searchKey)) {
+                sql = "SELECT * FROM book WHERE editionYear LIKE ?";
+            } 
+
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, "%" + searchKeyword + "%");
+            rs = stmt.executeQuery();
+        }
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .menu-bar {
+            background-color: #607d8b;
+            color: #fff;
+            padding: 20px;
+            margin-right: 20px;
+        }
+
+        .menu-bar a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+
+        .menu-bar a:hover {
+            background-color: #455a64;
+        }
+
+        .content {
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            padding: 30px;
+            max-width: 1000px;
+            border-radius: 5px;
+        }
+
+        h1 {
+            color: #607d8b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #607d8b;
+        }
+
+        td {
+            background-color: #fff;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            display: none;
+        }
+
+        .custom-radio {
+            display: inline-block;
+            margin-right: 8px;
+            margin-bottom: 10px;
+        }
+
+        .custom-radio input[type="radio"] {
+            position: relative;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #666;
+            border-radius: 50%;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        .custom-radio input[type="radio"]:checked + .radio-icon {
+            background-color: #202c40;
+        }
+
+        .custom-radio label {
+            vertical-align: middle;
+            color: #607d8b;
+            font-size: 16px;
+        }
+
+        button {
+            color: #607d8b;
+            background: #fff;
+            cursor: pointer;
+            font-size: 24px;
+            border: none;
+            display: none;
+        }
+
+        button i.fa-search {
+            font-size: 30px;
+            color: #607d8b;
+        }
+
+        button:hover i.fa-search {
+            color: #384951 !important;
+        }
+
+    </style>
+    <script>
+        function showSearch() {
+            var input = document.getElementById("searchInput");
+            var button = document.getElementById("searchButton");
+            input.style.display = "inline-block";
+            button.style.display = "inline-block";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <jsp:include page="index.jsp" />
+        <div class="content">
+            <h1>Search Book</h1>
+            <form action="#" method="post">
+                 <div class="custom-radio">
+                        <input type="radio" id="book_id" value="book_id" name="searchKey" onclick="showSearch()">
+                        <span class="radio-icon"></span>
+                        <label for="book_id">Book Id</label>
+                    </div>
+                    <div class="custom-radio">
+                        <input type="radio" id="catalogue_id" value="catalogue_id" name="searchKey" onclick="showSearch()">
+                        <span class="radio-icon"></span>
+                        <label for="catalogue_id">Catalogue Id</label>
+                    </div>
+                    <div class="custom-radio">
+                        <input type="radio" id="book_title" value="book_title" name="searchKey" onclick="showSearch()">
+                        <span class="radio-icon"></span>
+                        <label for="book_title">Book Title</label>
+                    </div>
+                    <div class="custom-radio">
+                        <input type="radio" id="author_name" value="author_name" name="searchKey" onclick="showSearch()">
+                        <span class="radio-icon"></span>
+                        <label for="author_name">Author Name</label>
+                    </div>
+                    <div class="custom-radio">
+                        <input type="radio" id="price" value="price" name="searchKey" onclick="showSearch()">
+                        <span class="radio-icon"></span>
+                        <label for="price">Price</label>
+                    </div>
+                    <div class="custom-radio">
+                        <input type="radio" id="quantity" value="quantity" name="searchKey" onclick="showSearch()">
+                        <span class="radio-icon"></span>
+                        <label for="quantity">Quantity</label>
+                    </div>
+                    <div class="custom-radio">
+                        <input type="radio" id="isbn_no" value="isbn_no" name="searchKey" onclick="showSearch()">
+                        <span class="radio-icon"></span>
+                        <label for="isbn_no">ISBN No</label>
+                    </div>
+                    <div class="custom-radio">
+                        <input type="radio" id="publisher" value="publisher" name="searchKey" onclick="showSearch()">
+                        <span class="radio-icon"></span>
+                        <label for="publisher">Publisher</label>
+                    </div>
+                    <div class="custom-radio">
+                        <input type="radio" id="edition_year" value="edition_year" name="searchKey" onclick="showSearch()">
+                        <span class="radio-icon"></span>
+                        <label for="edition_year">Edition Year</label>
+                    </div>
+                    <input type="text" id="searchInput" name="searchKeyword" placeholder="Enter data to search...">
+                    <button type="submit" id="searchButton"><i class="fas fa-search"></i></button>
+                </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book Id</th>
+                        <th>Catalogue Id</th>
+                        <th>Book Title</th>
+                        <th>Author Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>ISBN No</th>
+                        <th>Publisher</th>
+                        <th>Edition Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% 
+                        while (rs != null && rs.next()) {
+                    %>
+                    <tr>
+                        <td><%= rs.getString("bookId") %></td>
+                        <td><%= rs.getString("categogueId") %></td>
+                        <td><%= rs.getString("title") %></td>
+                        <td><%= rs.getString("author") %></td>
+                        <td><%= rs.getString("price") %></td>
+                        <td><%= rs.getString("quantity") %></td>
+                        <td><%= rs.getString("ISBN") %></td>
+                        <td><%= rs.getString("publisher") %></td>
+                        <td><%= rs.getString("editionYear") %></td>
+                    </tr>
+                    <% 
+                        } 
+                    %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+<%
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmt != null) {
+                stmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+%>
+
+
+//searchCatalogue.jsp
+<%-- 
+    Document   : searchCatalogue
+    Created on : 15-Mar-2024, 9:59:36 AM
+    Author     : 91942
+--%>
+<%@ page import="java.sql.*" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    String searchKey = request.getParameter("searchKey");
+    String searchKeyword = request.getParameter("searchKeyword");
+
+    Connection conn = null;
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
+
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+
+        if (searchKey != null && searchKeyword != null) {
+            String sql = "";
+            if ("catalogue_id".equals(searchKey)) {
+                sql = "SELECT * FROM catalogue WHERE categogueId LIKE ?";
+            } else if ("catalogue_title".equals(searchKey)) {
+                sql = "SELECT * FROM catalogue WHERE title LIKE ?";
+            } else if ("catalogue_description".equals(searchKey)) {
+                sql = "SELECT * FROM catalogue WHERE description LIKE ?";
+            }
+
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, "%" + searchKeyword + "%");
+            rs = stmt.executeQuery();
+        }
+%>
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f2f2f2;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                display: flex;
+                align-items: stretch;
+                justify-content: center;
+            }
+
+            .menu-bar {
+                background-color: #607d8b;
+                color: #fff;
+                padding: 20px;
+                margin-right: 20px;
+            }
+
+            .menu-bar a {
+                display: block;
+                color: #fff;
+                text-decoration: none;
+                margin-bottom: 10px;
+            }
+
+            .menu-bar a:hover {
+                background-color: #455a64;
+            }
+
+            .content {
+                background-color: #fff;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                margin: auto;
+                padding: 30px;
+                max-width: 1000px;
+                border-radius: 5px;
+            }
+
+            h1 {
+                color: #607d8b;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th, td {
+                padding: 10px;
+                border-bottom: 1px solid #ccc;
+            }
+
+            th {
+                background-color: #f2f2f2;
+                color: #607d8b;
+            }
+
+            td {
+                background-color: #fff;
+            }
+
+            input {
+                width: 80%;
+                padding: 10px;
+                margin-top: 20px;
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+                display: none; 
+            }
+
+            .custom-radio {
+                display: inline-block;
+                margin-right: 20px;
+                margin-bottom: 10px;
+            }
+
+            .custom-radio input[type="radio"] {
+                position: relative;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 2px solid #666;
+                border-radius: 50%;
+                cursor: pointer;
+                vertical-align: middle;
+            }
+
+            .custom-radio input[type="radio"]:checked + .radio-icon {
+                background-color: #202c40;
+            }
+
+            .custom-radio label {
+                margin-left: 5px;
+                vertical-align: middle;
+                color: #607d8b;
+                font-size: 16px;
+            }
+            button {
+                color: #607d8b;
+                background: #fff;
+                cursor: pointer;
+                font-size: 24px;
+                border: none;
+                display: none;
+            }
+
+            button i.fa-search {
+                font-size: 30px;
+                color: #607d8b;
+            }
+
+            button:hover i.fa-search {
+                color: #384951 !important; 
+            }
+
+        </style>
+    <script>
+        function showSearch() {
+            var input = document.getElementById("searchInput");
+            var button = document.getElementById("searchButton");
+            input.style.display = "inline-block";
+            button.style.display = "inline-block";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <jsp:include page="index.jsp" />
+        <div class="content">
+            <h1>Search Catalogue</h1>
+            <form action="#" method="post">
+                <div class="custom-radio">
+                    <input type="radio" id="catalogue_id" value="catalogue_id" name="searchKey" onclick="showSearch()"> 
+                    <span class="radio-icon"></span> 
+                    <label for="catalogue_id">Catalogue Id</label>
+                </div>
+                <div class="custom-radio">
+                    <input type="radio" id="catalogue_title" value="catalogue_title" name="searchKey" onclick="showSearch()"> 
+                    <span class="radio-icon"></span> 
+                    <label for="catalogue_title">Catalogue Title</label>
+                </div>
+                <div class="custom-radio">
+                    <input type="radio" id="catalogue_description" value="catalogue_description" name="searchKey" onclick="showSearch()"> 
+                    <span class="radio-icon"></span> 
+                    <label for="catalogue_description">Catalogue Description</label>
+                </div>
+                <input type="text" id="searchInput" name="searchKeyword" placeholder="Enter keyword to search...">
+                <button type="submit" id="searchButton"><i class="fas fa-search"></i></button>
+            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Catalogue Id</th>
+                        <th>Catalogue Title</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% 
+                        while (rs != null && rs.next()) {
+                    %>
+                    <tr>
+                        <td><%= rs.getString("categogueId") %></td>
+                        <td><%= rs.getString("title") %></td>
+                        <td><%= rs.getString("description") %></td>
+                    </tr>
+                    <% 
+                        } 
+                    %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+<%
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmt != null) {
+                stmt.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+%>
+
+//showBook.jsp
+
+<%-- 
+    Document   : ShowBook
+    Created on : 15-Mar-2024, 9:59:36 AM
+    Author     : 91942
+--%>
+
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.Connection"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Show Book</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f2f2f2;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                display: flex;
+                align-items: stretch;
+            }
+
+            .menu-bar {
+                background-color: #607d8b;
+                color: #fff;
+                padding: 20px;
+                margin-right: 20px;
+            }
+
+            .menu-bar a {
+                display: block;
+                color: #fff;
+                text-decoration: none;
+                margin-bottom: 10px;
+            }
+
+            .menu-bar a:hover {
+                background-color: #455a64;
+            }
+
+            .content {
+                background-color: #fff;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                margin: auto;
+                padding: 30px;
+                max-width: 1000px;
+                border-radius: 5px;
+            }
+
+            h1 {
+                color: #607d8b;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th, td {
+                padding: 10px;
+                border-bottom: 1px solid #ccc;
+            }
+
+            th {
+                background-color: #f2f2f2;
+                color: #607d8b;
+            }
+
+            td {
+                background-color: #fff;
+            }
+
+            .edit-link i,
+            .delete-link i {
+                color: #607d8b; 
+                transition: color 0.3s;
+            }
+
+            .edit-link:hover i,
+            .delete-link:hover i {
+                color: #41545e; 
+            }
+
+            .menu-bar {
+                background-color: #607d8b;
+                color: #fff;
+                flex: 0 0 200px;
+                padding: 20px;
+            }
+
+            .menu-bar h1 {
+                color: #fff; 
+            }
+
+            .menu-bar a {
+                color: #fff; 
+                display: block;
+                text-decoration: none;
+                padding: 10px;
+                margin-bottom: 10px;
+                transition: background-color 0.3s;
+            }
+
+            .menu-bar a:hover {
+                background-color: #455a64;
+            }
+
+            .menu-bar a i.fa-edit {
+                color: #607d8b !important;
+            }
+
+            .menu-bar a:hover i.fa-edit {
+                color: #ee4b2b !important;
+            }
+
+            .menu-bar a i.fa-trash-alt {
+                color: #607d8b !important;
+            }
+
+            .menu-bar a:hover i.fa-trash-alt {
+                color: #ee4b2b !important;
+            }
+
+        </style>
+
+    </head>
+    <body>
+        <div class="container">
+            <jsp:include page="index.jsp" />
+            <div class="content">
+                <h1>Book Details</h1><br>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Book Id</th>
+                            <th>Catalogue Id</th>
+                            <th>Book Title</th>
+                            <th>Author Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>ISBN No</th>
+                            <th>Publisher</th>
+                            <th>Edition Year</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    
+                <tbody>
+                        <%
+                            try {
+                                Class.forName("com.mysql.cj.jdbc.Driver");
+                                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+                                Statement stmt = conn.createStatement();
+                                ResultSet rs = stmt.executeQuery("SELECT * FROM book");
+
+                                while (rs.next()) {
+                                    String bookId = rs.getString("bookId");
+                                    String categogueId = rs.getString("categogueId");
+                                    String title = rs.getString("title");
+                                    String author = rs.getString("author");
+                                    String price = rs.getString("price");
+                                    String quantity = rs.getString("quantity");
+                                    String ISBN = rs.getString("ISBN");
+                                    String publisher = rs.getString("publisher");
+                                    String editionYear = rs.getString("editionYear");
+                        %>
+                       
+                            <td><%= bookId%></td>
+                            <td><%= categogueId%></td>
+                            <td><%= title%></td>
+                            <td><%= author%></td>
+                            <td><%= price%></td>
+                            <td><%= quantity%></td>
+                            <td><%= ISBN%></td>
+                            <td><%= publisher%></td>
+                            <td><%= editionYear%></td>
+                            <td><a href="updateBook.jsp?id=<%= bookId%>" class="edit-link"><i class="fas fa-edit"></i></a></td>
+                            <td><a href="#" class="delete-link" onclick="showConfirmation('<%= bookId%>')"><i class="fas fa-trash-alt"></i></a></td>
+                        </tr>
+                        <%
+                                }
+                                rs.close();
+                                stmt.close();
+                                conn.close();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        %>
+                    </tbody>
+            </table>
+        </div>
+    </div>
+                <script>
+            function showConfirmation(bookId) {
+                var confirmDelete = confirm("Are you sure you want to delete this book?");
+                if (confirmDelete) {
+                    window.location.href = "deleteBook.jsp?id=" + bookId;
+                }
+            }
+        </script>
+        
+</body>
+</html>
+
+//showCatalogue.jsp
+
+<%-- 
+    Document   : showCatalogue
+    Created on : 15-Mar-2024, 9:59:36 AM
+    Author     : 91942
+--%>
+
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.Connection"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Show Catalogue</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f2f2f2;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                display: flex;
+                align-items: stretch;
+                justify-content: center;
+            }
+
+            .menu-bar {
+                background-color: #607d8b;
+                color: #fff;
+                padding: 20px;
+                margin-right: 20px;
+            }
+
+            .menu-bar a {
+                display: block;
+                color: #fff;
+                text-decoration: none;
+                margin-bottom: 10px;
+            }
+
+            .menu-bar a:hover {
+                background-color: #455a64;
+            }
+
+            .content {
+                background-color: #fff;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                margin: auto;
+                padding: 30px;
+                max-width: 1000px;
+                border-radius: 5px;
+            }
+
+            h1 {
+                color: #607d8b;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th, td {
+                padding: 10px;
+                border-bottom: 1px solid #ccc;
+            }
+
+            th {
+                background-color: #f2f2f2;
+                color: #607d8b;
+            }
+
+            td {
+                background-color: #fff;
+            }
+
+            .edit-link i,
+            .delete-link i {
+                color: #607d8b; 
+                transition: color 0.3s;
+            }
+
+            .edit-link:hover i,
+            .delete-link:hover i {
+                color: #41545e; 
+            }
+
+            .menu-bar {
+                background-color: #607d8b;
+                color: #fff;
+                flex: 0 0 200px;
+                padding: 20px;
+            }
+
+            .menu-bar h1 {
+                color: #fff; 
+            }
+
+            .menu-bar a {
+                color: #fff; 
+                display: block;
+                text-decoration: none;
+                padding: 10px;
+                margin-bottom: 10px;
+                transition: background-color 0.3s;
+            }
+
+            .menu-bar a:hover {
+                background-color: #455a64;
+            }
+
+            .menu-bar a i.fa-edit {
+                color: #607d8b !important;
+            }
+
+            .menu-bar a:hover i.fa-edit {
+                color: #ee4b2b !important;
+            }
+
+            .menu-bar a i.fa-trash-alt {
+                color: #607d8b !important;
+            }
+
+            .menu-bar a:hover i.fa-trash-alt {
+                color: #ee4b2b !important;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <jsp:include page="index.jsp" />
+            <div class="content">
+                <h1>Catalogue Details</h1><br>
+                <table>
+                    <thead>
+
+                        <tr>
+                            <th>Catalogue Id</th>
+                            <th>Catalogue Title</th>
+                            <th>Description</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+
+                    </thead>
+                    <tbody>
+                        <%
+                            try {
+                                Class.forName("com.mysql.cj.jdbc.Driver");
+                                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+                                Statement stmt = conn.createStatement();
+                                ResultSet rs = stmt.executeQuery("SELECT * FROM catalogue");
+
+                                while (rs.next()) {
+                                    String catalogueId = rs.getString("categogueId");
+                                    String title = rs.getString("title");
+                                    String description = rs.getString("description");
+                        %>
+                        <tr>
+                            <td><%= catalogueId%></td>
+                            <td><%= title%></td>
+                            <td><%= description%></td>
+                            <td><a href="updateCatalogue.jsp?id=<%= catalogueId%>" class="edit-link"><i class="fas fa-edit"></i></a></td>
+                            <td><a href="#" class="delete-link" onclick="showConfirmation('<%= catalogueId%>')"><i class="fas fa-trash-alt"></i></a></td>
+                        </tr>
+                        <%
+                                }
+                                rs.close();
+                                stmt.close();
+                                conn.close();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <script>
+            function showConfirmation(catalogueId) {
+                var confirmDelete = confirm("Are you sure you want to delete this catalogue?");
+                if (confirmDelete) {
+                    window.location.href = "deleteCatalogue.jsp?id=" + catalogueId;
+                }
+            }
+        </script>
+    </body>
+</html>
+
+
+//updateBook.jsp
+<%-- 
+    Document   : UpdateBook
+    Created on : 15-Mar-2024, 9:59:36 AM
+    Author     : 91942
+--%>
+
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.Connection"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Update Book</title>
+        <style>
+            body {
+                font-family: Calibri, sans-serif; 
+                background-color: #f2f2f2;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                display: flex;
+                align-items: stretch;
+            }
+
+            .menu-bar {
+                background-color: #607d8b;
+                color: #fff;
+                padding: 20px;
+                margin-right: 20px;
+            }
+
+            .menu-bar a {
+                display: block;
+                color: #fff;
+                text-decoration: none;
+                margin-bottom: 10px;
+            }
+
+            .menu-bar a:hover {
+                background-color: #455a64;
+            }
+
+            .content {
+                background-color: #fff;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                margin: auto;
+                padding: 30px;
+                max-width: 700px;
+                border-radius: 5px;
+            }
+
+            h1 {
+                color: #607d8b;
+            }
+
+            label {
+                font-size: 18px;
+                color: #607d8b;
+                display: block;
+                margin-top:5px;
+                margin-bottom: 5px;
+            }
+
+            input, textarea, select {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+
+            button {
+                width: 100%;
+                background-color: #607d8b;
+                color: white;
+                padding: 14px 20px;
+                margin-top: 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            button:hover {
+                background-color: #78909c;
+            }
+        </style>
+             <script>
+            function validateForm() {
+                var catalogueId = document.getElementById("catalogueId").value;
+                var authorName = document.getElementById("authorName").value.trim();
+                var isbn = document.getElementById("isbn").value.trim();
+                var publisher = document.getElementById("publisher").value.trim();
+                var title = document.getElementById("bookTitle").value.trim();
+                var price = document.getElementById("price").value.trim();
+                var quantity = document.getElementById("quantity").value.trim();
+                var editionYear = document.getElementById("editionYear").value.trim();
+
+                var alphabetRegex = /^[A-Za-z\s]+$/;
+                var alphanumericRegex = /^[0-9a-zA-Z]+$/;
+                var priceRegex = /^\d+(\.\d{1,2})?$/;
+                var quantityRegex = /^[1-9]\d*$/;
+                var yearRegex = /^\d{4}$/;
+                var isbnRegex = /^\d{13}$/; 
+
+                if (catalogueId === "") {
+                    alert("Please select a catalogue");
+                    return false;
+                }
+
+                if (title === "") {
+                    alert("Title cannot be empty");
+                    return false;
+                }
+
+                if (!authorName.match(alphabetRegex)) {
+                    alert("Author name must contain only alphabets");
+                    return false;
+                }
+
+                if (!price.match(priceRegex)) {
+                    alert("Price must be a valid number");
+                    return false;
+                }
+
+                if (!quantity.match(quantityRegex)) {
+                    alert("Quantity must be a positive integer");
+                    return false;
+                }
+
+                if (!isbn.match(isbnRegex)) {
+                    alert("ISBN must be in valid format");
+                    return false;
+                }
+
+                if (!publisher.match(alphabetRegex)) {
+                    alert("Publisher must contain only alphabets");
+                    return false;
+                }
+
+                if (!editionYear.match(yearRegex)) {
+                    alert("Edition year must be a valid 4-digit year");
+                    return false;
+                }
+
+                var currentYear = new Date().getFullYear();
+                if (parseInt(editionYear) > currentYear) {
+                    alert("Edition year cannot be in the future");
+                    return false;
+                }
+
+                return true;
+            }
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <jsp:include page="index.jsp" />
+
+            <div class="content">
+                <h1>Update Book</h1>
+                <%
+                    Connection conn = null;
+                    PreparedStatement pstmt = null;
+                    ResultSet rs = null;
+                    try {
+                        Class.forName("com.mysql.cj.jdbc.Driver");
+                        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+                        String bookIdParam = request.getParameter("id");
+                        if (bookIdParam != null && !bookIdParam.isEmpty()) {
+                            int bookId = Integer.parseInt(bookIdParam);
+                            String query = "SELECT * FROM book WHERE bookId = ?";
+                            pstmt = conn.prepareStatement(query);
+                            pstmt.setInt(1, bookId);
+                            rs = pstmt.executeQuery();
+                            if (rs.next()) {
+                                String booktitle = rs.getString("title");
+                                String authorName = rs.getString("author");
+                                String price = rs.getString("price");
+                                String quantity = rs.getString("quantity");
+                                String isbn = rs.getString("isbn");
+                                String publisher = rs.getString("publisher");
+                                String editionYear = rs.getString("editionYear");
+                %>
+                <form action="modifyBook.jsp" method="post" onsubmit="return validateForm()" style="margin-top: 40px;">
+                    <input type="hidden" name="bookId" value="<%= bookId%>">
+
+                    <label for="catalogueId">Catalogue</label>
+                    <select name="catalogueId" id="catalogueId">
+                        <%
+                            Statement stmt = conn.createStatement();
+                            ResultSet catalogueRs = stmt.executeQuery("SELECT * FROM catalogue");
+                            while (catalogueRs.next()) {
+                                String id = catalogueRs.getString("categogueId");
+                                String title = catalogueRs.getString("title");
+                                if (id.equals(id)) {
+                        %>
+                        <option value="<%= id%>" selected><%= title%></option>
+                        <%
+                        } else {
+                        %>
+                        <option value="<%= id%>"><%= title%></option>
+                        <%
+                                }
+                            }
+                            catalogueRs.close();
+                            stmt.close();
+                        %>
+                    </select>
+
+                    <label for="bookTitle">Title</label>
+                    <input type="text" id="bookTitle" name="bookTitle" value="<%= booktitle%>"><br>
+
+                    <label for="authorName">Author</label>
+                    <input type="text" id="authorName" name="authorName" value="<%= authorName%>"><br>
+
+                    <label for="price">Price</label>
+                    <input type="text" id="price" name="price" value="<%= price%>"><br>
+
+                    <label for="quantity">Quantity</label>
+                    <input type="text" id="quantity" name="quantity" value="<%= quantity%>"><br>
+
+                    <label for="isbn">ISBN</label>
+                    <input type="text" id="isbn" name="isbn" value="<%= isbn%>"><br>
+
+                    <label for="publisher">Publisher</label>
+                    <input type="text" id="publisher" name="publisher" value="<%= publisher%>"><br>
+
+                   <label for="editionYear">Edition Year</label>
+                    <input type="text" id="editionYear" name="editionYear" value="<%= editionYear%>"><br>
+
+                    <button type="submit">Update Book</button>
+                </form>
+                <% }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (rs != null) {
+                            rs.close();
+                        }
+                        if (pstmt != null) {
+                            pstmt.close();
+                        }
+                        if (conn != null) {
+                            conn.close();
+                        }
+                    }
+                %>
+            </div>
+        </div>
+    </body>
+</html>
+
+//updateCatalogue.jsp
+<%-- 
+    Document   : updateCatalogue
+    Created on : 15-Mar-2024, 9:59:36 AM
+    Author     : 91942
+--%>
+
+<%@page import="java.sql.*, java.util.*"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Update Catalogue</title>
+        <style>
+            body {
+                font-family: Calibri, sans-serif;
+                background-color: #f2f2f2;
+                margin: 0;
+                padding: 0;
+            }
+
+            .container {
+                display: flex;
+                align-items: stretch;
+            }
+
+            .menu-bar {
+                background-color: #607d8b;
+                color: #fff;
+                padding: 20px;
+                margin-right: 20px;
+            }
+
+            .menu-bar a {
+                display: block;
+                color: #fff;
+                text-decoration: none;
+                margin-bottom: 10px;
+            }
+
+            .menu-bar a:hover {
+                background-color: #455a64;
+            }
+
+            .content {
+                background-color: #fff;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                margin: auto;
+                padding: 30px;
+                max-width: 700px;
+                border-radius: 5px;
+            }
+
+            h1 {
+                color: #607d8b;
+            }
+
+            label {
+                font-size: 18px;
+                color: #607d8b;
+                display: block;
+                margin-top: 5px;
+                margin-bottom: 5px;
+            }
+
+            input, textarea {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+
+            button {
+                width: 100%;
+                background-color: #607d8b;
+                color: white;
+                padding: 14px 20px;
+                margin-top: 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            button:hover {
+                background-color: #78909c;
+            }
+        </style>
+        <script>
+            function validateForm() {
+                var catalogueTitle = document.getElementById("catalogueTitle").value;
+                var catalogueDescription = document.getElementById("catalogueDescription").value;
+
+                if (catalogueTitle.trim() === "") {
+                    alert("Catalogue Title cannot be empty");
+                    return false;
+                }
+
+                if (catalogueDescription.trim() === "") {
+                    alert("Catalogue Description cannot be empty");
+                    return false;
+                }
+
+                return true;
+            }
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <jsp:include page="index.jsp" />
+            <div class="content">
+                <h1>Update Catalogue</h1>
+                <%
+                    Connection conn = null;
+                    PreparedStatement pstmt = null;
+                    ResultSet rs = null;
+
+                    try {
+                        Class.forName("com.mysql.cj.jdbc.Driver");
+                        conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sem2", "root", "");
+
+                        String catalogueIdParam = request.getParameter("id");
+                        if (catalogueIdParam != null && !catalogueIdParam.isEmpty()) {
+                            int catalogueId = Integer.parseInt(catalogueIdParam);
+                            String query = "SELECT * FROM catalogue WHERE categogueId = ?";
+                            pstmt = conn.prepareStatement(query);
+                            pstmt.setInt(1, catalogueId);
+                            rs = pstmt.executeQuery();
+
+                            if (rs.next()) {
+                                String catalogueTitle = rs.getString("title");
+                                String catalogueDescription = rs.getString("description");
+                %>
+                <form action="modifyCatalogue.jsp" method="post" onsubmit="return validateForm()" style="margin-top: 40px;">
+                    <input type="hidden" name="catalogueId" value="<%= catalogueId%>">
+                    <label for="catalogueTitle">Catalogue Title</label>
+                    <input type="text" id="catalogueTitle" name="catalogueTitle" value="<%= catalogueTitle%>"><br>
+                    <label for="catalogueDescription">Catalogue Description</label>
+                    <textarea id="catalogueDescription" name="catalogueDescription" rows="4"><%= catalogueDescription%></textarea><br>
+                    <button type="submit">Update Catalogue</button>
+                </form>
+                <%
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (rs != null) {
+                            rs.close();
+                        }
+                        if (pstmt != null) {
+                            pstmt.close();
+                        }
+                        if (conn != null) {
+                            conn.close();
+                        }
+                    }
+                %>
+            </div>
+        </div>
+    </body>
+</html>
+
+
+//web.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    <welcome-file-list>
+        <welcome-file>showBook.jsp</welcome-file>
+    </welcome-file-list>
+</web-app>

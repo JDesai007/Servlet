@@ -1,0 +1,56 @@
+//studentlist.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<studentlist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="studentlist.xsd">
+    <student>
+        <enrollmentno>101</enrollmentno>
+        <name>
+            <firstname>Maulik</firstname>
+            <middlename>B</middlename>
+            <lastname>Parmar</lastname>
+        </name>
+        <study_program>BSc</study_program>
+        <enrollment_year>2022</enrollment_year>
+    </student>
+    <student>
+        <enrollmentno>102</enrollmentno>
+        <name>
+            <firstname>Radhey</firstname>
+            <lastname>Parmar</lastname>
+        </name>
+        <study_program>MSc</study_program>
+        <enrollment_year>2000</enrollment_year>
+    </student>
+</studentlist>
+
+
+//studentlist.xsd
+
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="studentlist">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="student" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="enrollmentno" type="xs:string"/>
+              <xs:element name="name">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="firstname" type="xs:string"/>
+                    <xs:element name="middlename" type="xs:string" minOccurs="0"/>
+                    <xs:element name="lastname" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="study_program" type="xs:string"/>
+              <xs:element name="enrollment_year" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

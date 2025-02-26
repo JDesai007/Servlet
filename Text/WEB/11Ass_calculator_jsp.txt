@@ -1,0 +1,202 @@
+//index.jsp
+
+<%-- 
+    Document   : index
+    Created on : 10-Apr-2024, 1:33:15 am
+    Author     : user
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 30%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <form id="calculatorForm" onsubmit="return validateForm()" action="calculation.jsp">
+        <table>
+            <tr>
+                <td><label for="operand1">Operand 1:</label></td>
+                <td><input type="text" id="operand1" name="operand1" required></td>
+            </tr>
+            <tr>
+                <td><label for="operation">Operation:</label></td>
+                <td>
+                    <input type="radio" id="add" name="operation" value="add" checked> <label for="add">Add</label>
+                    <input type="radio" id="sub" name="operation" value="sub"> <label for="sub">Subtract</label>
+                    <input type="radio" id="mul" name="operation" value="mul"> <label for="mul">Multiply</label>
+                    <input type="radio" id="div" name="operation" value="div"> <label for="div">Divide</label>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="operand2">Operand 2:</label></td>
+                <td><input type="text" id="operand2" name="operand2" required></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit">OK</button>
+                    <button type="reset">Reset</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <script>
+        function validateForm() {
+            var operand1 = document.getElementById("operand1").value;
+            var operand2 = document.getElementById("operand2").value;
+            if (isNaN(operand1) || isNaN(operand2)) {
+                alert("Operands must be numbers");
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>
+
+//calculation.jsp
+
+<%-- 
+    Document   : calculation
+    Created on : 10-Apr-2024, 1:41:24 am
+    Author     : user
+--%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.program11.beans.CalculatorBean" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Result</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 10%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <jsp:useBean id="calculator" class="com.program11.beans.CalculatorBean" scope="request"/>
+    <jsp:setProperty name="calculator" property="operand1" value="${param.operand1}"/>
+    <jsp:setProperty name="calculator" property="operand2" value="${param.operand2}"/>
+    <jsp:setProperty name="calculator" property="operation" value="${param.operation}"/>
+
+    <h2>Result:</h2>
+    <table border="1">
+        <tr>
+            <td>Operand 1:</td>
+            <td>${param.operand1}</td>
+        </tr>
+        <tr>
+            <td>Operation:</td>
+            <td>${param.operation}</td>
+        </tr>
+        <tr>
+            <td>Operand 2:</td>
+            <td>${param.operand2}</td>
+        </tr>
+        <tr>
+            <td>Result</td>
+            <td>${calculator.result}</td>
+        </tr>
+    </table>
+    
+</body>
+</html>
+
+//calculatorBean.java
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
+/**
+ *
+ * @author user
+ */
+package com.program11.beans;
+public class CalculatorBean {
+    private double operand1;
+    private double operand2;
+    private String operation;
+    private double result;
+
+    public CalculatorBean() {
+    }
+
+    public double getOperand1() {
+        return operand1;
+    }
+
+    public void setOperand1(double operand1) {
+        this.operand1 = operand1;
+    }
+
+    public double getOperand2() {
+        return operand2;
+    }
+
+    public void setOperand2(double operand2) {
+        this.operand2 = operand2;
+    }
+
+    public String getOperation() {
+        return operation;
+    }
+
+    public void setOperation(String operation) {
+        this.operation = operation;
+    }
+
+    public double getResult() {
+        switch (operation) {
+            case "add":
+                result = operand1 + operand2;
+                break;
+            case "sub":
+                result = operand1 - operand2;
+                break;
+            case "mul":
+                result = operand1 * operand2;
+                break;
+            case "div":
+                if (operand2 != 0) {
+                    result = operand1 / operand2;
+                } else {
+                    result = Double.NaN;
+                }
+                break;
+        }
+        return result;
+    }
+    
+}

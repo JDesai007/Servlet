@@ -1,0 +1,272 @@
+//index.jsp
+
+<%-- 
+    Document   : index
+    Created on : 10-Mar-2024, 1:52:19 PM
+    Author     : user
+--%>
+
+<%@ page import="classes.Medicine" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Search Medicine</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    /* Additional CSS styles */
+    /* Example: Change the background color of the search input */
+    input[type="text"] {
+        background-color: #eaeaea;
+        width: 80%; /* Adjust the width if needed */
+        padding: 10px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    /* Example: Style the search button */
+    button[type="submit"] {
+        background-color: #607d8b;
+        color: #fff;
+        border-radius: 4px;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+    }
+
+    /* Example: Style the table */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    /* Example: Style the table header */
+    th {
+        background-color: #f2f2f2;
+        color: #607d8b;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+        text-align: center;
+    }
+
+    /* Example: Style the table data */
+    td {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+        text-align: center;
+    }
+</style>
+
+
+        <script>
+            function showSearch() {
+                var input = document.getElementById("searchInput");
+                var button = document.getElementById("searchButton");
+                input.style.display = "inline-block";
+                button.style.display = "inline-block";
+            }
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="content">
+                <h1 class="h1content">Search Medicine</h1>
+
+                <form action="searchMedicine.htm" method="post">
+                    <center>
+                        <div class="custom-radio">
+                            <input type="radio" id="medicine_name" value="medicine_name" name="searchmedicine"
+                                   onclick="showSearch()"> <span class="radio-icon"></span> <label
+                                   for="medicine_name">Medicine Name</label>
+                        </div>
+                        <div class="custom-radio">
+                            <input type="radio" id="manufacturer_name" value="manufacturer_name" name="searchmedicine"
+                                   onclick="showSearch()"> <span class="radio-icon"></span> <label
+                                   for="manufacturer_name">Manufacturer Name</label>
+                        </div>
+                    </center>
+
+                    <input type="text" id="searchInput" name="searchKeyword" placeholder="Enter keyword to search...">
+                    <button type="submit" id="searchButton"><i class="fas fa-search"></i></button>
+
+                </form>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Medicine Name</th>
+                            <th>Medicine Details</th>
+                            <th>Manufacturer Name</th>
+                            <th>Batch No</th>
+                            <th>Manufacturing Date</th>
+                            <th>Expiry Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="medicine" items="${medicineList}">
+                            <tr>
+                                <td>${medicine.medicineId}</td>
+                                <td>${medicine.medicineName}</td>
+                                <td>${medicine.medicineDetails}</td>
+                                <td>${medicine.manufacturerName}</td>
+                                <td>${medicine.batchNo}</td>
+                                <td>${medicine.manufacturingMonthYear}</td>
+                                <td>${medicine.expiryMonthYear}</td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>
+
+//medicine.java
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+import classes.Medicine;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author user
+ */
+public class SearchMedicine extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+
+        ArrayList<Medicine> medicineList = new ArrayList<Medicine>();
+
+        String jdbcURL = "jdbc:mysql://localhost:3306/sem2";
+        String dbUser = "root";
+        String dbPassword = "";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword);
+
+            String searchName = request.getParameter("searchmedicine");
+            String searchKeyword = request.getParameter("searchKeyword");
+
+            String sql = "";
+            if ("medicine_name".equals(searchName)) {
+                sql = "SELECT id, medicine_name, medicine_details, manufacturer_name, batch_no, CONCAT(DATE_FORMAT(manufacturing_month_year, '%M'), ' ', DATE_FORMAT(manufacturing_month_year, '%Y')) AS manufacturing_month_year,  CONCAT(DATE_FORMAT(expiry_month_year, '%M'), ' ', DATE_FORMAT(expiry_month_year, '%Y')) AS expiry_month_year FROM medicine WHERE medicine_name LIKE ?";
+            } else if ("manufacturer_name".equals(searchName)) {
+                sql = "SELECT id, medicine_name, medicine_details, manufacturer_name, batch_no, CONCAT(DATE_FORMAT(manufacturing_month_year, '%M'), ' ', DATE_FORMAT(manufacturing_month_year, '%Y')) AS manufacturing_month_year,  CONCAT(DATE_FORMAT(expiry_month_year, '%M'), ' ', DATE_FORMAT(expiry_month_year, '%Y')) AS expiry_month_year FROM medicine WHERE manufacturer_name LIKE ?";
+            }
+
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, "%" + searchKeyword + "%");
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int medicineId = resultSet.getInt("id");
+                String medicineName = resultSet.getString("medicine_name");
+                String medicineDetails = resultSet.getString("medicine_details");
+                String manufacturerName = resultSet.getString("manufacturer_name");
+                String batchNo = resultSet.getString("batch_no");
+                String manufacturingMonthYear = resultSet.getString("manufacturing_month_year");
+                String expiryMonthYear = resultSet.getString("expiry_month_year");
+
+                Medicine medicine = new Medicine(medicineId, medicineName, medicineDetails, manufacturerName, batchNo, manufacturingMonthYear, expiryMonthYear);
+                medicineList.add(medicine);
+            }
+
+            resultSet.close();
+            statement.close();
+            connection.close();
+        } catch (ClassNotFoundException cnfe){
+            cnfe.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        request.setAttribute("medicineList", medicineList);
+        request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }
+
+}
+
+//query
+CREATE TABLE medicine (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    medicine_name VARCHAR(255) NOT NULL,
+    medicine_details VARCHAR(255),
+    manufacturer_name VARCHAR(255),
+    batch_no VARCHAR(50),
+    manufacturing_month_year DATE,
+    expiry_month_year DATE
+);
+
+
