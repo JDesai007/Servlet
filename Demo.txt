@@ -1,0 +1,188 @@
+23) Write a program to display all the files from given directory.(display 	
+        file only if it is ascii)	
+        if directory is not passed as argument then display from current dir.	
+
+---->
+
+no='expr 1'
+
+no='expr $no + 1'
+
+nm=' '
+for nm in `file * | grep "ASCII" | cut -d ":" -f 1`
+
+do
+        echo $nm
+
+done
+
+
+24)Accept filename as command line argument & display its permissions for       
+        for read , write or execute otherwise display appropriate messages.
+
+--->
+
+if [ $# -ne 1 ];then
+        echo "Usage:$0<filename>"
+        exit1
+fi
+filename=$1
+if [ -e "$filename" ];then
+        if [ -r "$filename" ];then
+                r_p="YES"
+        else
+                r_p="NO"
+        fi
+        if [ -w "$filename" ];then
+                w_p="YES"
+        else
+                w_p="NO"
+        fi
+        if [ -x "$filename" ];then
+                ex_p="YES"
+        else
+                ex_p="NO"
+        fi
+        echo "Permission For file'$filename':"
+        echo "Read :$r_p"
+        echo "Write :$w_p"
+        echo "Execute :$ex_p"
+else
+        echo "File '$filename'does not Exist"
+fi
+
+
+
+
+25) write a shell script which recursively delete *.obj, *.lst or all files with legnth of zero bytes
+
+--->
+
+delete_files() {
+    # Find and delete .obj and .lst files
+    find . -type f \( -name "*.obj" -o -name "*.lst" \) -exec rm -f {} +
+
+    # Find and delete files with zero length
+    find . -type f -size 0 -exec rm -f {} +
+}
+delete_files
+
+
+26) write a shell script which conncatenate all given files into a single file put filename before every file
+
+--->
+if [ "$#" -lt 2 ]; then
+    echo "Usage: $0 output_file input_file1 [input_file2 ...]"
+    exit 1
+fi
+
+OUTPUT_FILE=$1
+shift
+
+> "$OUTPUT_FILE"
+
+for file in "$@"; do
+    if [ -f "$file" ]; then
+        echo "==> $file <==" >> "$OUTPUT_FILE"
+        cat "$file" >> "$OUTPUT_FILE"
+        echo "" >> "$OUTPUT_FILE"  # Add a newline separator
+    else
+        echo "Warning: $file not found or is not a regular file. Skipping."
+    fi
+done
+
+echo "Concatenation completed into $OUTPUT_FILE."
+
+
+27)Write a shell script for printing calender for the month that entered as 
+        a char argument
+
+--->
+echo -n "Enter year: "
+read year
+
+echo "\n"
+cal $year
+
+
+
+
+28)Write a shell script to generate following output.
+   
+   Mon Aug 24  09:30:31 EST 1998
+   Date is ...........................: 24-08-98
+   Date is ...........................: 08/24/98
+   Time is ...........................: 09 - 30 -31
+   Time is ...........................: 09:30:31
+   No of days elapsed in this year is : 234
+   Serial no of day ( of week ) is    : 31
+   Day and Date is....................: Tue Aug 24, 1998
+   Time in the form AM/PM ............: 09:30:31 AM
+   Good Morning
+
+--->
+
+
+echo $(date "+%a %b %d %X %Z %Y ")
+echo "Date is.......:$(date "+%d-%m-%y")"
+echo "Date is.......:$(date "+%m/%d/%y")"
+echo "Time is.......:$(date "+%H-%M-%S")"
+echo "Time is.......:$(date "+%H:%M:%S")"
+echo "No of days elapsed in this year is:$(date "+%j")"
+echo "Serial no of day(of week) is:$(date "+%V")"
+echo "Day and Date is.......:$(date "+%a %b %d,%Y")"
+echo "Time in the form of AM/PM.......:$(date "+%X")"
+
+if [ $(date +%H) -ge 5 -a $(date +%H) -lt 12 ];
+then
+        echo "Good Morning"
+fi
+if [ $(date +%H) -ge 12 -a $(date +%H) -lt 17 ];
+then
+        echo "Good Afternoon"
+fi
+if [ $(date +%H) -ge 17 -a $(date +%H) -lt 22 ];
+then
+        echo "Good Evening"
+fi
+if [ $(date +%H) -ge 22 -a $(date +%H) -lt 5 ];
+then
+        echo "Good Night"
+fi
+
+
+
+29) write a shell script to copy a duplicate file from two directory to thrd directory and remove both old file. pass names of the directory as command line argument.
+
+--->
+
+#!/bin/bash
+
+# Check if at least one file is provided
+if [ "$#" -lt 2 ]; then
+    echo "Usage: $0 output_file input_file1 [input_file2 ...]"
+    exit 1
+fi
+
+# Extract output file name
+OUTPUT_FILE=$1
+shift  # Remove the first argument so that "$@" contains only input files
+
+# Create or clear the output file
+> "$OUTPUT_FILE"
+
+# Loop through each input file
+for file in "$@"; do
+    if [ -f "$file" ]; then
+        echo "==> $file <==" >> "$OUTPUT_FILE"
+        cat "$file" >> "$OUTPUT_FILE"
+        echo "" >> "$OUTPUT_FILE"  # Add a newline separator
+    else
+        echo "Warning: $file not found or is not a regular file. Skipping."
+    fi
+done
+
+echo "Concatenation completed into $OUTPUT_FILE."
+
+
+

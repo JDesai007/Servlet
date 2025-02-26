@@ -1,0 +1,309 @@
+*******pro-23******
+no='expr 1'
+
+no='expr $no + 1'
+
+nm=' '
+for nm in `file * | grep "ASCII" | cut -d ":" -f 1`
+
+do
+        echo $nm
+
+done
+
+*************pro-24************
+if [ $# -ne 1 ];then
+        echo "Usage:$0<filename>"
+        exit1
+fi
+filename=$1
+if [ -e "$filename" ];then
+        if [ -r "$filename" ];then
+                r_p="YES"
+        else
+                r_p="NO"
+        fi
+        if [ -w "$filename" ];then
+                w_p="YES"
+        else
+                w_p="NO"
+        fi
+        if [ -x "$filename" ];then
+                ex_p="YES"
+        else
+                ex_p="NO"
+        fi
+        echo "Permission For file'$filename':"
+        echo "Read :$r_p"
+        echo "Write :$w_p"
+        echo "Execute :$ex_p"
+else
+        echo "File '$filename'does not Exist"
+fi
+
+*****************pro-25***************
+del_f() {
+
+    find . -type f \( -name "*.obj" -o -name "*.lst" \) -exec rm -f {} +
+
+    find . -type f -size 0 -exec rm -f {} +
+}
+del_f
+*********************pro-26****************
+if [ "$#" -lt 2 ]; then
+    echo "Please Enter File Name As Command Line "
+    exit 1
+fi
+
+concat_file=$1
+shift
+> "$concat_file"
+
+for file in "$@"; do
+    if [ -f "$file" ]; then
+        echo "*** $file ***" >> "$concat_file"
+        cat "$file" >> "$concat_file"
+        echo "" >> "$concat_file"
+    else
+        echo "$file not found !!!!!"
+    fi
+done
+
+echo "Successfully Concrate $file into $concat_file."
+
+
+*************pro-27**************
+echo -n "Enter month Number: "
+read month
+echo -n "Enter year : "
+read year
+
+cal $month $year
+****************pro-28************
+echo $(date "+%a %b %d %X %Z %Y")
+echo "Date is......:$(date "+%d-%m-%y")"
+echo "Date is......:$(date "+%m/%d/%y")"
+echo "Time is......:$(date "+%H-%M-%S")"
+echo "Time is......:$(date "+%H:%M:%S")"
+echo "No of days elpase in year:$(date "+%j")"
+echo "Serial no of day(of week)is:$(date "+%V")"
+echo "Day And Date is....:$(date "+%a %b %d %Y")"
+echo "Time in form of AM/PM......:$(date "+%X")"
+if [ $(date +%H) -ge 5 -a $(date +%H) -lt 12 ];
+then
+        echo "Good Morning"
+fi
+if [ $(date +%H) -ge 12 -a $(date +%H) -lt 17 ];
+then
+        echo "Good Afternoon"
+fi
+if [ $(date +%H) -ge 17 -a $(date +%H) -lt 22 ];
+then
+        echo "Good Evening"
+fi
+if [ $(date +%H) -ge 22 -a $(date +%H) -lt 5 ];
+then
+        echo "Good Night"
+fi
+*****************pro-32*****************
+read -p "Enter Number :" n
+sum=0
+i=0
+for i in $(seq 1 $n)
+do
+        sum=$((sum + i))
+done
+
+echo "Answer Is :" $sum
+
+***************pro-29*******
+
+if [ "$#" -ne 3 ]; then
+    echo "Enter Directory In Command Line !!!!!!!"
+    exit 1
+fi
+
+SOURCE_DIR1=$1
+SOURCE_DIR2=$2
+DEST_DIR=$3
+
+mkdir -p "$DEST_DIR"
+
+for file1 in "$SOURCE_DIR1"/*; do
+    filename=$(basename "$file1")
+    file2="$SOURCE_DIR2/$filename"
+
+    if [ -f "$file2" ]; then
+        cp "$file1" "$DEST_DIR"
+        rm "$file1" "$file2"
+        echo "Copied and removed duplicate file: $filename"
+    fi
+done
+
+echo "Succesful"
+**********pro-33**************
+echo "Enter marks of C++: "
+read subject1
+echo "Enter marks of MIS: "
+read subject2
+echo "Enter marks of UNIX: "
+read subject3
+
+total=$((subject1 + subject2 + subject3))
+average=$((total / 3))
+
+echo "Average Marks Is: $average"
+
+if [ $average -ge 60 ]; then
+    echo "Grade: First"
+elif [ $average -ge 50 ] && [ $average -lt 60 ]; then
+    echo "Grade: Second"
+elif [ $average -ge 40 ] && [ $average -lt 50 ]; then
+    echo "Grade: Third"
+else
+    echo "Grade: Fail"
+fi
+***********pro-34*************
+current_date=$(date +%m-%d)
+birthday_file="birthday_details.txt"
+logged_in_users=$(who | awk '{print $1}')
+
+for user in $logged_in_users; do
+    user_birthday=$(grep "^$user:" "$birthday_file" | cut -d: -f3)
+
+    if [ -n "$user_birthday" ] && [ "$user_birthday" = "$current_date" ]; then
+        username=$(grep "^$user:" "$birthday_file" | cut -d: -f1)
+        echo "Happy Birthday, $username! U"
+    fi
+done
+*****birthday_details.txt********
+mca101:mca101:02-01
+mca102:mca102:09-12
+mca103:mca103:07-31
+mca121:mca121:07-09
+mca120:mca120:02-20
+***************pr0-35**********
+
+file="members.txt"
+show_menu() {
+    echo "1. Insert a new record"
+    echo "2. Update an existing record"
+    echo "3. Search for a record"
+    echo "4. Exit"
+    echo "Please select an option: "
+}
+
+insert_record() {
+    echo "Enter Member Code: "
+    read membercode
+    echo "Enter Member Name: "
+    read membername
+    echo "Enter Address: "
+    read address
+    echo "Enter Magazine Name: "
+    read magazinename
+    echo "Enter Month of Publication (MM-YYYY): "
+    read monthofpublish
+    echo "Enter Issue Date (DD-MM-YYYY): "
+    read issuedate
+
+    echo "$membercode:$membername:$address:$magazinename:$monthofpublish:$issuedate" >> $file
+    echo "Record inserted successfully!"
+}
+
+update_record() {
+    echo "Enter Member Code to update: "
+    read membercode
+    record=$(grep "^$membercode:" $file)
+    if [ -z "$record" ]; then
+        echo "Record not found!"
+        return
+    fi
+
+    echo "Enter new Member Name: "
+    read membername
+    echo "Enter new Address: "
+    read address
+    echo "Enter new Magazine Name: "
+    read magazinename
+    echo "Enter new Month of Publication (MM-YYYY): "
+    read monthofpublish
+    echo "Enter new Issue Date (DD-MM-YYYY): "
+    read issuedate
+
+    sed -i "s/^$membercode:.*$/$membercode:$membername:$address:$magazinename:$monthofpublish:$issuedate/" $file
+    echo "Record updated successfully!"
+}
+
+search_record() {
+    echo "Enter Member Code to search: "
+    read membercode
+    record=$(grep "^$membercode:" $file)
+    if [ -z "$record" ]; then
+        echo "Record not found!"
+    else
+        echo "Record found: $record"
+    fi
+}
+
+while true; do
+    show_menu
+    read choice
+
+    case $choice in
+        1)
+            insert_record
+            ;;
+        2)
+            update_record
+            ;;
+        3)
+            search_record
+            ;;
+        4)
+            echo "Exiting..."
+            break
+            ;;
+        *)
+            echo "Invalid option, please try again."
+            ;;
+    esac
+done
+
+***********pro-37*********
+output_file="user_input.txt"
+line_count=0
+
+# Ensure the file can be created in the current directory
+if [ ! -d "$(dirname "$output_file")" ]; then
+    echo "Error: Directory for the output file doesn't exist."
+    exit 1
+fi
+
+> "$output_file"
+
+while true; do
+    echo "Enter a line of text (type 'end' to stop):"
+    read user_input
+    if echo "$user_input" | grep -q "end"; then
+        break
+    fi
+    echo "$user_input" >> "$output_file"
+    line_count=$((line_count + 1))
+done
+
+echo "Total lines entered: $line_count"
+************pro-38*********
+output_file="concatenated_output.txt"
+
+> "$output_file"
+
+for file in *; do
+    if [ -f "$file" ]; then
+        echo "=== $file ===" >> "$output_file"
+        cat "$file" >> "$output_file"
+        echo -e "\n" >> "$output_file"
+    fi
+done
+
+echo "Files have been concatenated into $output_file"
